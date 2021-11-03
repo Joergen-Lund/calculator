@@ -13,26 +13,29 @@
 <body>
     <div class="container">
         <div class="calc">
-            <div class="screen">122 + 567</div>
-            <button>AC</button>
-            <button><img src="media/xy.png" alt="x to the power of y"></button>
-            <button><img src="media/sqrt.png" alt="squareroot"></button>
-            <button>*</button>
-            <button>7</button>
-            <button>8</button>
-            <button>9</button>
-            <button>/</button>  
-            <button>4</button>
-            <button>5</button>
-            <button>6</button>
-            <button>+</button>
-            <button>1</button>
-            <button>2</button>
-            <button>3</button>
-            <button>-</button>
-            <button>.</button>
-            <button>0</button>
-            <button class="double">=</button>
+            <div class="screen">0</div>
+            <button data-all-clear>AC</button>
+            
+            <!-- fix these images-->
+            <button data-operation value="pow"><img src="media/xy.png" alt="x to the power of y"></button>
+            <button data-operation value="sqrt"><img src="media/sqrt.png" alt="squareroot"></button>
+            
+            <button data-operation value="*">*</button>
+            <button data-number>7</button>
+            <button data-number>8</button>
+            <button data-number>9</button>
+            <button data-operation value="÷">÷</button>  
+            <button data-number>4</button>
+            <button data-number>5</button>
+            <button data-number>6</button>
+            <button data-operation value="+">+</button>
+            <button data-number>1</button>
+            <button data-number>2</button>
+            <button data-number>3</button>
+            <button data-operation value="-">-</button>
+            <button data-number>.</button>
+            <button data-number>0</button>
+            <button class="double" data-equals>=</button>
         </div>
     </div>
 </body>
