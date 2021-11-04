@@ -30,7 +30,12 @@ body {
     padding: 1rem;
     word-wrap: break-word;
     color: #eee;
-    font-size: 2rem;
+    font-size: 2.2rem;
+}
+
+.calc > button {
+    cursor: pointer;
+    font-size: 1.6rem;
 }
 
 .double {
