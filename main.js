@@ -66,7 +66,7 @@ function multiplyFloats(number1, number2) {
 function divide(dividend, divisor) {
 
     let quotient = 0
-    
+
 
     while (dividend - divisor >= 0) {
         dividend -= divisor
