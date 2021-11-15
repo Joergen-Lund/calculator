@@ -1,10 +1,8 @@
-// import Calculator from "./Calculator"
-
 const screen = document.querySelector('.screen')
 const numberButtons = document.querySelectorAll('[data-number]')
 const operationButtons = document.querySelectorAll('[data-operation]')
 const allClearButton = document.querySelector('[data-all-clear]')
-const equalsButton = document.querySelector('[data-equals]')
+const evaluateButton = document.querySelector('[data-evaluate]')
 
 numberButtons.forEach(numberButton => {
     numberButton.addEventListener('click', () => {
@@ -17,3 +15,103 @@ operationButtons.forEach(operationButton => {
         console.log(operationButton.value)
     })
 })
+
+allClearButton.addEventListener('click', () => {
+    console.log(allClearButton.innerHTML)
+})
+
+evaluateButton.addEventListener('click', () => {
+    console.log(evaluateButton.innerHTML)
+})
+
+
+
+
+function multiply(number1, number2) {
+
+    let product = 0
+
+    // if both numbers passed in is floats, terminate multiply() and execute multiplyFloats()
+    if (!Number.isInteger(number1) && !Number.isInteger(number2)) {
+        return multiplyFloats(number1, number2)
+    }    
+    
+    // if number2 is a float, swap the values of number1 and number2
+    if (!Number.isInteger(number2)) {
+        let temp = number2
+        number2 = number1
+        number1 = temp
+    }
+
+    for (let i = 0; i < number2; i++) {
+        product += number1
+    }
+
+    return product
+}
+
+function multiplyFloats(number1, number2) {
+
+    number1 = number1.toFixed(5)
+    number1 = parseFloat(number1)
+
+    number2 = number2.toFixed(5)
+    number2 = parseFloat(number2)
+
+
+    return "number1: " + number1 + "   number2: " + number2
+}
+
+
+function divide(dividend, divisor) {
+
+    let quotient = 0
+
+
+    while (dividend - divisor >= 0) {
+        dividend -= divisor
+        quotient++
+    }
+
+    dividend = multiply(dividend, 10)
+    while (dividend - divisor >= 0) {
+        dividend -= divisor
+        quotient += 0.1
+    }
+
+    dividend = multiply(dividend, 10)
+    while (dividend - divisor >= 0) {
+        dividend -= divisor
+        quotient += 0.01
+    }
+
+    dividend = multiply(dividend, 10)
+    while (dividend - divisor >= 0) {
+        dividend -= divisor
+        quotient += 0.001
+    }
+
+    dividend = multiply(dividend, 10)
+    while (dividend - divisor >= 0) {
+        dividend -= divisor
+        quotient += 0.0001
+    }
+    
+    dividend = multiply(dividend, 10)
+    while (dividend - divisor >= 0) {
+        dividend -= divisor
+        quotient += 0.00001
+    }
+
+    quotient = quotient.toFixed(5)
+    quotient = parseFloat(quotient)
+    
+
+    return quotient
+}
+
+console.log(multiply(25,10.5))
+console.log(multiply(50.1234, 64.1))
+
+console.log(divide(110,10))
+console.log(divide(100, 20.5))
