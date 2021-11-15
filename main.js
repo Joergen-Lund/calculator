@@ -1,5 +1,3 @@
-// import Calculator from "./Calculator"
-
 const screen = document.querySelector('.screen')
 const numberButtons = document.querySelectorAll('[data-number]')
 const operationButtons = document.querySelectorAll('[data-operation]')
