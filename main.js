@@ -26,11 +26,17 @@ evaluateButton.addEventListener('click', () => {
 
 
 
+// let expression = ""
+
+
+
+
+
 function multiply(number1, number2) {
 
     let product = 0
 
-    // if both numbers passed in is floats, terminate multiply() and execute multiplyFloats()
+    // if both numbers passed in is floats, multiply to get 5 decimalpoints accuracy
     if (!Number.isInteger(number1) && !Number.isInteger(number2)) {
 
         number2 = multiply(number2, 100000)
@@ -40,6 +46,7 @@ function multiply(number1, number2) {
         }
 
         product = divide(product, 100000)
+
 
         return product
     }
@@ -54,6 +61,7 @@ function multiply(number1, number2) {
     for (let i = 0; i < number2; i++) {
         product += number1
     }
+
 
     return product
 }
