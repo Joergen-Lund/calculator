@@ -41,16 +41,19 @@ operationButtons.forEach(operationButton => {
 })
 
 allClearButton.addEventListener('click', () => {
+
     expression = ""
     currentNumber = ""
     expressionArray = []
     screen.innerHTML = "0"
+
 })
 
 evaluateButton.addEventListener('click', () => {
-    console.log(evaluateButton.innerHTML)
 
-    expressionArray.push(currentNumber)
+    if (currentNumber != "") {
+        expressionArray.push(currentNumber)
+    }
 
     console.log(expressionArray)
 
@@ -59,37 +62,92 @@ evaluateButton.addEventListener('click', () => {
 
 
 function evaluate() {
+
+    let notSplitted = true
+
+    while (notSplitted) {
+        // check if the expression includes multiplication or division
+        if (expressionArray.indexOf("*") != -1 || expressionArray.indexOf("÷") != -1) {
+
+            // if there is multiplication in the expression, set indexOfMultiplication to the index in the array. Else set it to 1000, to ensure that the next if-statement runs properly
+            let indexOfMultiplication = expressionArray.indexOf("*") != -1 ? expressionArray.indexOf("*") : 1000
+
+            // if there is division in the expression, set indexOfDivision to the index in the array. Else set it to 1000, to ensure that the next if-statement runs properly
+            let indexOfDivision = expressionArray.indexOf("÷") != -1 ? expressionArray.indexOf("÷") : 1000
+
+
+            // if indexOfMultiplication is lower than indexOfDivision it means that multiplication comes before division in the expression. To follow the order of operations, we execute the multiplication first
+            if (indexOfMultiplication < indexOfDivision) {
+                console.log("multiplication")
+
+                let number1 = expressionArray[indexOfMultiplication - 1]
+                number1 = parseFloat(number1)
+
+                let number2 = expressionArray[indexOfMultiplication + 1]
+                number2 = parseFloat(number2)
+
+                // expressionArray.splice(indexOfMultiplication - 1, 3)
+                // expressionArray.splice(indexOfMultiplication - 1, 0, multiply(number1, number2))
+                expressionArray.splice(indexOfMultiplication - 1, 3, multiply(number1, number2))
+        
+                console.log(expressionArray)
+            } else {
+                console.log("division")
+                let number1 = expressionArray[indexOfDivision - 1]
+                number1 = parseFloat(number1)
+                let number2 = expressionArray[indexOfDivision + 1]
+                number2 = parseFloat(number2)
+
+                expressionArray.splice(indexOfDivision - 1, 3, divide(number1, number2))
+        
+                console.log(expressionArray)
+            }
+            
     
-    if (expressionArray.indexOf("*") != -1) {
-        console.log("has *")
+        } else if (expressionArray.indexOf("+") != -1 || expressionArray.indexOf("-") != -1) {
+            
+            let indexOfAddition = expressionArray.indexOf("+") != -1 ? expressionArray.indexOf("+") : 1000
+            let indexOfSubtraction = expressionArray.indexOf("-") != -1 ? expressionArray.indexOf("-") : 1000
 
-        let indexOfMultiplication = expressionArray.indexOf("*")
-        console.log(indexOfMultiplication)
+            if (indexOfAddition < indexOfSubtraction) {
+                console.log("addition")
 
-        let number1 = expressionArray[indexOfMultiplication - 1]
-        number1 = parseFloat(number1)
-        console.log(number1)
-        let number2 = expressionArray[indexOfMultiplication + 1]
-        number2 = parseFloat(number2)
-        console.log(number2)
+                let number1 = expressionArray[indexOfAddition - 1]
+                number1 = parseFloat(number1)
+                let number2 = expressionArray[indexOfAddition + 1]
+                number2 = parseFloat(number2)
 
-        console.log(multiply(number1, number2))
+                expressionArray.splice(indexOfAddition - 1, 3, number1 + number2)
+        
+                console.log(expressionArray)
+            } else {
+                console.log("subtraction")
+                let number1 = expressionArray[indexOfSubtraction - 1]
+                number1 = parseFloat(number1)
+                let number2 = expressionArray[indexOfSubtraction + 1]
+                number2 = parseFloat(number2)
 
-    } else if (expressionArray.indexOf("÷") != -1) {
-        console.log("has ÷")
+                expressionArray.splice(indexOfSubtraction - 1, 3, number1 - number2)
+        
+                console.log(expressionArray)
+            }
+            
+        } else {
 
-        let indexOfMultiplication = expressionArray.indexOf("÷")
-        console.log(indexOfMultiplication)
+            // makes sure nothing went wrong, and prevents the display from showing "undefined" if nothing is entered before hitting evaluateButton
+            if (expressionArray.length == 1) {
 
-        let number1 = expressionArray[indexOfMultiplication - 1]
-        number1 = parseFloat(number1)
-        console.log(number1)
-        let number2 = expressionArray[indexOfMultiplication + 1]
-        number2 = parseFloat(number2)
-        console.log(number2)
+                // the answer is the last number in the expressionArray
+                let answer = expressionArray[0]
+                screen.innerHTML = answer
 
-        console.log(multiply(number1, number2))
+            } 
+            // stops the while-loop
+            notSplitted = false
+        }
     }
+    
+    
 
 }
 
@@ -184,9 +242,17 @@ function pow(base) {
 
 }
 
-function sqrt(base) {
-    let exponent = divide(base, 2)
+function factorial(base) {
 
-    return pow(base, exponent)
+    let answer = 1
+
+    for (let i = base; i > 0; i--) {
+
+        answer = multiply(answer, i)
+    
+    }
+
+    return answer
 }
 
+console.log(factorial(5))
