@@ -4,30 +4,94 @@ const operationButtons = document.querySelectorAll('[data-operation]')
 const allClearButton = document.querySelector('[data-all-clear]')
 const evaluateButton = document.querySelector('[data-evaluate]')
 
+
+let expressionArray = []
+let expression = ""
+let currentNumber = ""
+
+
 numberButtons.forEach(numberButton => {
     numberButton.addEventListener('click', () => {
         console.log(numberButton.innerHTML)
+
+        currentNumber += numberButton.innerHTML
+
+        expression += numberButton.innerHTML
+
+        screen.innerHTML = expression
     })
 })
 
 operationButtons.forEach(operationButton => {
     operationButton.addEventListener('click', () => {
         console.log(operationButton.value)
+
+        if (currentNumber != "") {
+
+            expressionArray.push(currentNumber)
+            expressionArray.push(operationButton.value)
+            currentNumber = ""
+
+            expression += ` ${operationButton.value} `
+    
+            screen.innerHTML = expression
+
+        }
     })
 })
 
 allClearButton.addEventListener('click', () => {
-    console.log(allClearButton.innerHTML)
+    expression = ""
+    currentNumber = ""
+    expressionArray = []
+    screen.innerHTML = "0"
 })
 
 evaluateButton.addEventListener('click', () => {
     console.log(evaluateButton.innerHTML)
+
+    expressionArray.push(currentNumber)
+
+    console.log(expressionArray)
+
+    evaluate()
 })
 
 
+function evaluate() {
+    
+    if (expressionArray.indexOf("*") != -1) {
+        console.log("has *")
 
-// let expression = ""
+        let indexOfMultiplication = expressionArray.indexOf("*")
+        console.log(indexOfMultiplication)
 
+        let number1 = expressionArray[indexOfMultiplication - 1]
+        number1 = parseFloat(number1)
+        console.log(number1)
+        let number2 = expressionArray[indexOfMultiplication + 1]
+        number2 = parseFloat(number2)
+        console.log(number2)
+
+        console.log(multiply(number1, number2))
+
+    } else if (expressionArray.indexOf("÷") != -1) {
+        console.log("has ÷")
+
+        let indexOfMultiplication = expressionArray.indexOf("÷")
+        console.log(indexOfMultiplication)
+
+        let number1 = expressionArray[indexOfMultiplication - 1]
+        number1 = parseFloat(number1)
+        console.log(number1)
+        let number2 = expressionArray[indexOfMultiplication + 1]
+        number2 = parseFloat(number2)
+        console.log(number2)
+
+        console.log(multiply(number1, number2))
+    }
+
+}
 
 
 
@@ -114,8 +178,15 @@ function divide(dividend, divisor) {
     return quotient
 }
 
-console.log(multiply(25,10.5))
-console.log(multiply(50.34, 64.1))
+function pow(base) {
 
-console.log(divide(110,10))
-console.log(divide(100, 20.5))
+    return multiply(base, base)
+
+}
+
+function sqrt(base) {
+    let exponent = divide(base, 2)
+
+    return pow(base, exponent)
+}
+
