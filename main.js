@@ -26,15 +26,23 @@ evaluateButton.addEventListener('click', () => {
 
 
 
-
 function multiply(number1, number2) {
 
     let product = 0
 
     // if both numbers passed in is floats, terminate multiply() and execute multiplyFloats()
     if (!Number.isInteger(number1) && !Number.isInteger(number2)) {
-        return multiplyFloats(number1, number2)
-    }    
+
+        number2 = multiply(number2, 100000)
+
+        for (let i = 0; i < number2; i++) {
+            product += number1
+        }
+
+        product = divide(product, 100000)
+
+        return product
+    }
     
     // if number2 is a float, swap the values of number1 and number2
     if (!Number.isInteger(number2)) {
@@ -48,18 +56,6 @@ function multiply(number1, number2) {
     }
 
     return product
-}
-
-function multiplyFloats(number1, number2) {
-
-    number1 = number1.toFixed(5)
-    number1 = parseFloat(number1)
-
-    number2 = number2.toFixed(5)
-    number2 = parseFloat(number2)
-
-
-    return "number1: " + number1 + "   number2: " + number2
 }
 
 
@@ -111,7 +107,7 @@ function divide(dividend, divisor) {
 }
 
 console.log(multiply(25,10.5))
-console.log(multiply(50.1234, 64.1))
+console.log(multiply(50.34, 64.1))
 
 console.log(divide(110,10))
 console.log(divide(100, 20.5))
