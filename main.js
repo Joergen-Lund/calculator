@@ -9,7 +9,7 @@ let expressionArray = []
 let expression = ""
 let currentNumber = ""
 
-
+console.log(-10*10);
 numberButtons.forEach(numberButton => {
     numberButton.addEventListener('click', () => {
         console.log(numberButton.innerHTML)
@@ -158,6 +158,19 @@ function evaluate() {
 function multiply(number1, number2) {
 
     let product = 0
+    let addSubtractionSign = false
+    let addAdditionSign = false
+
+    // if number is negative, get the absolute value for the loop to run correctly
+    if (number2 < 0) {
+        number2 = Math.abs(number2)
+
+        if (number1 > 0) {
+            addSubtractionSign = true
+        } else {
+            addAdditionSign = true
+        }
+    }
 
     // if both numbers passed in is floats, multiply to get 5 decimalpoints accuracy
     if (!Number.isInteger(number1) && !Number.isInteger(number2)) {
@@ -169,6 +182,22 @@ function multiply(number1, number2) {
         }
 
         product = divide(product, 100000)
+
+        // if we got the absloute value of number2, add the subtraction sign to the product
+        if (addSubtractionSign) {
+            product = "-" + product
+            console.log(product)
+            product = parseFloat(product)
+            addSubtractionSign = false
+        }
+
+        // both numbers were negative, make the product positive
+        if (addAdditionSign) {
+            product = "+" + product
+            console.log(product)
+            product = parseFloat(product)
+            addAdditionSign = false
+        }
 
 
         return product
@@ -185,6 +214,20 @@ function multiply(number1, number2) {
         product += number1
     }
 
+    // if we got the absloute value of number2, add the subtraction sign to the product
+    if (addSubtractionSign) {
+        product = "-" + product
+        product = parseFloat(product)
+        addSubtractionSign = false
+    }
+
+    // both numbers were negative, make the product positive
+    if (addAdditionSign) {
+        product = "+" + product
+        console.log(product)
+        product = parseFloat(product)
+        addAdditionSign = false
+    }
 
     return product
 }
@@ -255,5 +298,3 @@ function factorial(base) {
 
     return answer
 }
-
-console.log(factorial(5))
