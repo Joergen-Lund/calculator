@@ -9,7 +9,11 @@ let expressionArray = []
 let expression = ""
 let currentNumber = ""
 
-console.log(-10*10);
+// indicates what parenthesis we can use
+let allowStartOfparenthesis = true
+let allowEndOfparenthesis = true
+
+
 numberButtons.forEach(numberButton => {
     numberButton.addEventListener('click', () => {
         console.log(numberButton.innerHTML)
@@ -26,25 +30,61 @@ operationButtons.forEach(operationButton => {
     operationButton.addEventListener('click', () => {
         console.log(operationButton.value)
 
-        if (currentNumber != "" || operationButton.value == "(" || operationButton.value == "-") {
+        // if (currentNumber != "" || operationButton.value == "(" || operationButton.value == ")" || operationButton.value == "-" || operationButton.value == "!") {
 
-            expressionArray.push(currentNumber)
-            expressionArray.push(operationButton.value)
+            currentNumber != "" ? expressionArray.push(currentNumber) : ""
+
+
+
+            if (operationButton.value != "(" && operationButton.value != ")" && operationButton.value != "square") {
+
+                // if (isset(lastOperation) && lastOperation == "") {
+                    
+                // }
+                expressionArray.push(operationButton.value)
+                expression += ` ${operationButton.value} `
+
+            } else if ((operationButton.value == "(" && allowStartOfparenthesis) || (operationButton.value == ")" && allowEndOfparenthesis)) {
+
+                if (currentNumber != "" && operationButton.value == "(") {
+                    expressionArray.push("*")
+                    expression += " * "
+                }
+
+                expressionArray.push(operationButton.value)
+                expression += ` ${operationButton.value} `
+
+                if (allowStartOfparenthesis) {
+                    allowStartOfparenthesis = true
+                    allowEndOfparenthesis = true
+                } else {
+                    allowEndOfparenthesis = true
+
+                }
+            } else if (operationButton.value == "square") {
+                expressionArray.push(operationButton.value)
+                expression += "<sup>2</sup>"
+            }
+            
             currentNumber = ""
-
-            expression += ` ${operationButton.value} `
+            
+            
     
             screen.innerHTML = expression
-
-        }
+            let lastOperation = operationButton.value
+        // }
     })
 })
 
 allClearButton.addEventListener('click', () => {
 
+    expressionArray = []
     expression = ""
     currentNumber = ""
-    expressionArray = []
+
+    allowStartOfparenthesis = true
+    allowEndOfparenthesis = false
+
     screen.innerHTML = "0"
 
 })
@@ -64,10 +104,48 @@ evaluateButton.addEventListener('click', () => {
 function evaluate() {
 
     let notSplitted = true
+    let fixingParenthesis = false
+    let tempArray, indexOfStartParenthesis
 
     while (notSplitted) {
+
+        if (expressionArray.indexOf("(") != -1 && expressionArray.indexOf(")") != -1) {
+            fixingParenthesis = true
+            indexOfStartParenthesis = expressionArray.indexOf("(")
+            let indexOfEndParenthesis = expressionArray.indexOf(")")
+            let numberOfItemsToRemove = indexOfEndParenthesis - indexOfStartParenthesis + 1
+
+            tempArray = expressionArray
+            expressionArray = []
+            // tempArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
+            expressionArray = tempArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
+            expressionArray.shift()
+            expressionArray.pop()
+            console.log(expressionArray)
+        }
+
+        else if (expressionArray.indexOf("!") != -1) {
+            console.log("factorial")
+            let indexOfFactorial = expressionArray.indexOf("!")
+
+            let base = expressionArray[indexOfFactorial - 1]
+            base = parseFloat(base)
+
+            expressionArray.splice(indexOfFactorial - 1, 2, factorial(base))
+            console.log(expressionArray)
+        } else if (expressionArray.indexOf("square") != -1) {
+            console.log("square")
+            let indexOfSquare = expressionArray.indexOf("square")
+
+            let base = expressionArray[indexOfSquare - 1]
+            base = parseFloat(base)
+
+            expressionArray.splice(indexOfSquare - 1, 2, square(base))
+            console.log(expressionArray)
+        }
+
         // check if the expression includes multiplication or division
-        if (expressionArray.indexOf("*") != -1 || expressionArray.indexOf("÷") != -1) {
+        else if (expressionArray.indexOf("*") != -1 || expressionArray.indexOf("÷") != -1) {
 
             // if there is multiplication in the expression, set indexOfMultiplication to the index in the array. Else set it to 1000, to ensure that the next if-statement runs properly
             let indexOfMultiplication = expressionArray.indexOf("*") != -1 ? expressionArray.indexOf("*") : 1000
@@ -132,7 +210,15 @@ function evaluate() {
                 console.log(expressionArray)
             }
             
-        } else {
+        } else if (fixingParenthesis) {
+            fixingParenthesis = false
+
+            let answerOfParenthesis = expressionArray[0]
+            expressionArray = tempArray
+            expressionArray.splice(indexOfStartParenthesis, 0, answerOfParenthesis)
+            console.log(expressionArray)
+        }
+         else {
 
             // makes sure nothing went wrong, and prevents the display from showing "undefined" if nothing is entered before hitting the evaluateButton
             if (expressionArray.length == 1) {
@@ -149,7 +235,6 @@ function evaluate() {
     }
     
     
-
 }
 
 
@@ -158,19 +243,15 @@ function evaluate() {
 function multiply(number1, number2) {
 
     let product = 0
-    let addSubtractionSign = false
-    let addAdditionSign = false
+    let number1IsNegative = false
+    let number2IsNegative = false
 
-    // if number is negative, get the absolute value for the loop to run correctly
-    if (number2 < 0) {
-        number2 = Math.abs(number2)
+    number1 < 0 ? number1IsNegative = true : ""
+    number2 < 0 ? number2IsNegative = true : ""
 
-        if (number1 > 0) {
-            addSubtractionSign = true
-        } else {
-            addAdditionSign = true
-        }
-    }
+    number1 = Math.abs(number1)
+    number2 = Math.abs(number2)
+
 
     // if both numbers passed in is floats, multiply to get 5 decimalpoints accuracy
     if (!Number.isInteger(number1) && !Number.isInteger(number2)) {
@@ -183,26 +264,11 @@ function multiply(number1, number2) {
 
         product = divide(product, 100000)
 
-        // if we got the absloute value of number2, add the subtraction sign to the product
-        if (addSubtractionSign) {
-            product = "-" + product
-            console.log(product)
-            product = parseFloat(product)
-            addSubtractionSign = false
-        }
-
-        // both numbers were negative, make the product positive
-        if (addAdditionSign) {
-            product = "+" + product
-            console.log(product)
-            product = parseFloat(product)
-            addAdditionSign = false
-        }
-
 
         return product
     }
     
+
     // if number2 is a float, swap the values of number1 and number2
     if (!Number.isInteger(number2)) {
         let temp = number2
@@ -214,20 +280,13 @@ function multiply(number1, number2) {
         product += number1
     }
 
-    // if we got the absloute value of number2, add the subtraction sign to the product
-    if (addSubtractionSign) {
+
+    // if one the numbers passed in was negative, make the product negative
+    if (!(number1IsNegative && number2IsNegative) && (number1IsNegative || number2IsNegative)) {
         product = "-" + product
         product = parseFloat(product)
-        addSubtractionSign = false
     }
 
-    // both numbers were negative, make the product positive
-    if (addAdditionSign) {
-        product = "+" + product
-        console.log(product)
-        product = parseFloat(product)
-        addAdditionSign = false
-    }
 
     return product
 }
@@ -236,6 +295,14 @@ function multiply(number1, number2) {
 function divide(dividend, divisor) {
 
     let quotient = 0
+    let dividendIsNegative = false
+    let divisorIsNegative = false
+
+    dividend < 0 ? dividendIsNegative = true : ""
+    divisor < 0 ? divisorIsNegative = true : ""
+
+    dividend = Math.abs(dividend)
+    divisor = Math.abs(divisor)
 
 
     while (dividend - divisor >= 0) {
@@ -277,10 +344,16 @@ function divide(dividend, divisor) {
     quotient = parseFloat(quotient)
     
 
+    // if one the numbers passed in was negative, make the quotient negative
+    if (!(dividendIsNegative && divisorIsNegative) && (dividendIsNegative || divisorIsNegative)) {
+        quotient = "-" + quotient
+        quotient = parseFloat(quotient)
+    }
+
     return quotient
 }
 
-function pow(base) {
+function square(base) {
 
     return multiply(base, base)
 
@@ -298,3 +371,5 @@ function factorial(base) {
 
     return answer
 }
+
+

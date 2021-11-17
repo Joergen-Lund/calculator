@@ -16,17 +16,21 @@ body {
 
 .calc {
     display: grid;
-    grid-template-columns: repeat(4, 100px);
+    grid-template-columns: repeat(4, 140px);
     grid-template-rows: minmax(120px, auto) repeat(6, 100px);
     background-color: #111;
 }
 
-.screen {
+.screen-container {
     grid-column: span 4;
     
     display: flex;
     justify-content: flex-end;
     align-items: center;
+}
+
+.screen {
+
     padding: 1rem;
     word-wrap: break-word;
     color: #eee;
