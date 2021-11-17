@@ -26,7 +26,7 @@ operationButtons.forEach(operationButton => {
     operationButton.addEventListener('click', () => {
         console.log(operationButton.value)
 
-        if (currentNumber != "") {
+        if (currentNumber != "" || operationButton.value == "(" || operationButton.value == "-") {
 
             expressionArray.push(currentNumber)
             expressionArray.push(operationButton.value)
@@ -134,7 +134,7 @@ function evaluate() {
             
         } else {
 
-            // makes sure nothing went wrong, and prevents the display from showing "undefined" if nothing is entered before hitting evaluateButton
+            // makes sure nothing went wrong, and prevents the display from showing "undefined" if nothing is entered before hitting the evaluateButton
             if (expressionArray.length == 1) {
 
                 // the answer is the last number in the expressionArray
@@ -142,6 +142,7 @@ function evaluate() {
                 screen.innerHTML = answer
 
             } 
+
             // stops the while-loop
             notSplitted = false
         }

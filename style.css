@@ -41,3 +41,11 @@ body {
 .double {
     grid-column: span 2;
 }
+
+h3 {
+    margin-left: 3rem;
+}
+
+ul {
+    margin: 1rem 3rem;
+}
