@@ -36,7 +36,7 @@ operationButtons.forEach(operationButton => {
 
 
 
-            if (operationButton.value != "(" && operationButton.value != ")" && operationButton.value != "square") {
+            if (operationButton.value != "(" && operationButton.value != ")" && operationButton.value != "square" && operationButton.value != "!") {
 
                 // if (isset(lastOperation) && lastOperation == "") {
                     
@@ -61,9 +61,16 @@ operationButtons.forEach(operationButton => {
                     allowEndOfparenthesis = true
 
                 }
-            } else if (operationButton.value == "square") {
+            } else if (operationButton.value == "square" && currentNumber != "") {
                 expressionArray.push(operationButton.value)
                 expression += "<sup>2</sup>"
+            } else if (operationButton.value == "!") {
+                currentNumber = parseFloat(currentNumber)
+                if (!Number.isInteger(currentNumber)) return
+                
+
+                expressionArray.push(operationButton.value)
+                expression += `${operationButton.value} `
             }
             
             currentNumber = ""
@@ -71,7 +78,7 @@ operationButtons.forEach(operationButton => {
             
     
             screen.innerHTML = expression
-            let lastOperation = operationButton.value
+            // let lastOperation = operationButton.value
         // }
     })
 })
@@ -200,12 +207,22 @@ function evaluate() {
                 console.log(expressionArray)
             } else {
                 console.log("subtraction")
-                let number1 = expressionArray[indexOfSubtraction - 1]
-                number1 = parseFloat(number1)
-                let number2 = expressionArray[indexOfSubtraction + 1]
-                number2 = parseFloat(number2)
+                
+                if (expressionArray[indexOfSubtraction - 1] == undefined) {
+                    expressionArray.unshift(0)
+                } 
 
-                expressionArray.splice(indexOfSubtraction - 1, 3, number1 - number2)
+                setTimeout(() => {
+                    
+                    let number1 = expressionArray[indexOfSubtraction - 1]
+                    number1 = parseFloat(number1)
+                    
+                    let number2 = expressionArray[indexOfSubtraction + 1]
+                    number2 = parseFloat(number2)
+
+                    expressionArray.splice(indexOfSubtraction - 1, 3, number1 - number2)
+                }, 5);
+
         
                 console.log(expressionArray)
             }
@@ -360,6 +377,9 @@ function square(base) {
 }
 
 function factorial(base) {
+
+    if (base < 0 || !Number.isInteger(base)) return
+
 
     let answer = 1
 
