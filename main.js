@@ -11,12 +11,17 @@ let currentNumber = ""
 
 // indicates what parenthesis we can use
 let allowStartOfparenthesis = true
-let allowEndOfparenthesis = true
+let allowEndOfparenthesis = false
 
 
 numberButtons.forEach(numberButton => {
     numberButton.addEventListener('click', () => {
         console.log(numberButton.innerHTML)
+
+        if (expressionArray[expressionArray.length - 1] == ")") {
+            expressionArray.push("*")
+            expression += " * "
+        }
 
         currentNumber += numberButton.innerHTML
 
@@ -38,15 +43,13 @@ operationButtons.forEach(operationButton => {
 
             if (operationButton.value != "(" && operationButton.value != ")" && operationButton.value != "square" && operationButton.value != "!") {
 
-                // if (isset(lastOperation) && lastOperation == "") {
-                    
-                // }
+                
                 expressionArray.push(operationButton.value)
                 expression += ` ${operationButton.value} `
 
             } else if ((operationButton.value == "(" && allowStartOfparenthesis) || (operationButton.value == ")" && allowEndOfparenthesis)) {
 
-                if (currentNumber != "" && operationButton.value == "(") {
+                if ((currentNumber != "" || expressionArray[expressionArray.length - 1] == ")") && operationButton.value == "(") {
                     expressionArray.push("*")
                     expression += " * "
                 }
@@ -55,11 +58,11 @@ operationButtons.forEach(operationButton => {
                 expression += ` ${operationButton.value} `
 
                 if (allowStartOfparenthesis) {
-                    allowStartOfparenthesis = true
+                    allowStartOfparenthesis = false
                     allowEndOfparenthesis = true
                 } else {
-                    allowEndOfparenthesis = true
-
+                    allowEndOfparenthesis = false
+                    allowStartOfparenthesis = true
                 }
             } else if (operationButton.value == "square" && currentNumber != "") {
                 expressionArray.push(operationButton.value)
@@ -146,7 +149,7 @@ function evaluate() {
 
             let base = expressionArray[indexOfSquare - 1]
             base = parseFloat(base)
-
+            console.log(expressionArray)
             expressionArray.splice(indexOfSquare - 1, 2, square(base))
             console.log(expressionArray)
         }
@@ -212,7 +215,7 @@ function evaluate() {
                     expressionArray.unshift(0)
                 } 
 
-                setTimeout(() => {
+                // setTimeout(() => {
                     
                     let number1 = expressionArray[indexOfSubtraction - 1]
                     number1 = parseFloat(number1)
@@ -221,7 +224,7 @@ function evaluate() {
                     number2 = parseFloat(number2)
 
                     expressionArray.splice(indexOfSubtraction - 1, 3, number1 - number2)
-                }, 5);
+                // }, 5);
 
         
                 console.log(expressionArray)
@@ -240,9 +243,13 @@ function evaluate() {
             // makes sure nothing went wrong, and prevents the display from showing "undefined" if nothing is entered before hitting the evaluateButton
             if (expressionArray.length == 1) {
 
-                // the answer is the last number in the expressionArray
+                // the answer is the only number left in the expressionArray
                 let answer = expressionArray[0]
-                screen.innerHTML = answer
+
+                expressionArray = []
+                currentNumber = answer
+                expression = answer
+                screen.innerHTML = expression
 
             } 
 
@@ -380,7 +387,13 @@ function factorial(base) {
 
     if (base < 0 || !Number.isInteger(base)) return
 
+    // the factorial of any number larger than 170 will return "infinity" in JS, so we can save some time by just returning "infinity" if the number is larger than 170
+    if (base > 170) return "infinity"
 
+    // it's convenient the set the initial answer as 1, because of two reasons: 
+    // 0! = 1 
+    // and 
+    // we get the correct starting number for every n, example: 6! => 1*6 as the first operation, then 6*5 and so on
     let answer = 1
 
     for (let i = base; i > 0; i--) {
