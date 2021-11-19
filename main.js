@@ -3,6 +3,7 @@ const numberButtons = document.querySelectorAll('[data-number]')
 const operationButtons = document.querySelectorAll('[data-operation]')
 const allClearButton = document.querySelector('[data-all-clear]')
 const evaluateButton = document.querySelector('[data-evaluate]')
+const historyContainer = document.querySelector('.history_container')
 
 let validButtons = ["+", "-", "*", "/", "(", ")", "Enter", "Backspace"];
 let expressionArray = []
@@ -100,6 +101,55 @@ function inputNumber(input) {
     screen.innerHTML = expression;
 }
 
+//appends the expression and answer to the history tab
+function appendHistory(expression, answer) {
+    const div = document.createElement("div");
+    div.addEventListener("click", historyClick);
+    div.addEventListener("contextmenu", historyClick);
+    const spanExp = document.createElement("span");
+    spanExp.setAttribute("data-expression", "");
+    spanExp.innerHTML = expression
+
+    const spanAns = document.createElement("span");
+    spanAns.setAttribute("data-answer", "");
+    spanAns.innerHTML = `= ${answer}`;
+
+    div.appendChild(spanExp);
+    div.appendChild(spanAns);
+    historyContainer.appendChild(div);
+
+    historyContainer.scrollTo(0, historyContainer.scrollHeight);
+}
+
+
+function historyClick(event) {
+    console.log(event.type);
+    const historyExp = event.target.querySelector("[data-expression]").innerText;
+    let answer = event.target.querySelector("[data-answer]").innerText;
+    answer = answer.substring(1, answer.length); // removes the "="-sign from the expression
+
+    if(event.type == "click") { //handles left click
+        // TODO: better solutions to handle negative numbers when adding them to the expression?
+        if(answer < 0) {
+            inputOperation("-");
+        }
+        inputNumber(Math.abs(answer).toString());
+
+    }else { //handles right click
+        event.preventDefault();
+
+        currentNumber = "";
+        expression += historyExp;
+        expressionArray = expressionArray.concat(expression.split(" "));
+        console.log(expression.split(" "));
+        screen.innerHTML = expression;
+        console.log(expressionArray)
+    }
+    
+
+    console.log(historyExp, answer)
+
+}
 
 function evaluate() {
 
@@ -181,6 +231,9 @@ function evaluate() {
                 let answer = expressionArray[0];
                 expressionArray = [];
                 screen.innerHTML = answer
+
+                appendHistory(expression, answer); //adds the expression and answer to the history
+
                 //assigns the variables currentNumber and expression the answer if it isn't zero
                 if(answer) {
                     currentNumber = answer;

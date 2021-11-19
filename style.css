@@ -49,3 +49,49 @@ h3 {
 ul {
     margin: 1rem 3rem;
 }
+
+.history {
+    height: 720px;
+    width: 400px;
+    border: 1px solid black;
+}
+
+.history h1 {
+    margin: 0;
+}
+
+.history_header {
+    height: 120px;
+    text-align: center;
+    line-height: 120px;
+    font-size: 1.5em;
+    border-bottom: 1px solid black;
+}
+
+.history_container {
+    height: calc(720px - 120px);
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll; 
+}
+
+.history_container span {
+    display: block;
+    pointer-events: none; /* ensures that the spans don't conflict with the click event */
+}
+
+.history_container > div{
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    justify-content: space-evenly;
+    font-size: 1.7em;
+    padding-right: 10px;
+    position: relative;
+}
+
+.history_container > div:hover {
+    background-color: #eee;
+    cursor: pointer;
+}
