@@ -4,39 +4,32 @@ const operationButtons = document.querySelectorAll('[data-operation]')
 const allClearButton = document.querySelector('[data-all-clear]')
 const evaluateButton = document.querySelector('[data-evaluate]')
 
-
+let validButtons = ["+", "-", "*", "/", "(", ")", "Enter", "Backspace"];
 let expressionArray = []
 let expression = ""
 let currentNumber = ""
 
 
 numberButtons.forEach(numberButton => {
-    numberButton.addEventListener('click', () => {
-        console.log(numberButton.innerHTML)
+    numberButton.addEventListener('click', () => inputNumber(numberButton.innerHTML))
+});
 
-        currentNumber += numberButton.innerHTML
-
-        expression += numberButton.innerHTML
-
-        screen.innerHTML = expression
-    })
-})
+document.addEventListener("keydown", e => {
+    console.log(e.key);
+    if(e.key == "Enter") {
+        e.preventDefault();
+    }
+    if(Number.isInteger(Number.parseInt(e.key)) || e.key == ".") {
+        inputNumber(e.key);
+    }else if(validButtons.includes(e.key)) {
+        inputOperation(e.key);
+    }
+});
 
 operationButtons.forEach(operationButton => {
     operationButton.addEventListener('click', () => {
         console.log(operationButton.value)
-
-        if (currentNumber != "" || operationButton.value == "(" || operationButton.value == "-") {
-
-            expressionArray.push(currentNumber)
-            expressionArray.push(operationButton.value)
-            currentNumber = ""
-
-            expression += ` ${operationButton.value} `
-    
-            screen.innerHTML = expression
-
-        }
+        inputOperation(operationButton.value);
     })
 })
 
@@ -49,16 +42,63 @@ allClearButton.addEventListener('click', () => {
 
 })
 
-evaluateButton.addEventListener('click', () => {
+evaluateButton.addEventListener('click', () => inputOperation("Enter"));
 
-    if (currentNumber != "") {
-        expressionArray.push(currentNumber)
+
+function inputOperation(input) {
+
+    switch(input) {
+
+        case "Enter":
+            if(currentNumber != "") {
+                expressionArray.push(currentNumber);
+                currentNumber = "";
+            }
+            evaluate();
+            break;
+
+        case "Backspace":
+            if(currentNumber) {
+                currentNumber = "";
+            }else {
+                expressionArray.pop();
+            }
+            
+            expression = expression.toString().substring(0, expression.length - 1);
+            
+            if(expression) {
+                screen.innerHTML = expression;
+            }else {
+                screen.innerHTML = "0";
+            }
+            
+            break;
+
+        case "/":
+            input = "÷";
+
+        default:
+            if (currentNumber != "" || input == "(" || input == "-") {
+
+                expressionArray.push(currentNumber);
+                expressionArray.push(input);
+                currentNumber = "";
+                expression += ` ${input} `;
+        
+                screen.innerHTML = expression;
+        
+            }
+            break;
     }
 
-    console.log(expressionArray)
 
-    evaluate()
-})
+}
+
+function inputNumber(input) {
+    currentNumber += input;
+    expression += input;
+    screen.innerHTML = expression;
+}
 
 
 function evaluate() {
@@ -138,9 +178,18 @@ function evaluate() {
             if (expressionArray.length == 1) {
 
                 // the answer is the last number in the expressionArray
-                let answer = expressionArray[0]
+                let answer = expressionArray[0];
+                expressionArray = [];
                 screen.innerHTML = answer
-
+                //assigns the variables currentNumber and expression the answer if it isn't zero
+                if(answer) {
+                    currentNumber = answer;
+                    expression = answer;
+                }else {
+                    currentNumber = "";
+                    expression = "";
+                }
+                
             } 
 
             // stops the while-loop
