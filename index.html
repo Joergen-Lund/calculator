@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculator</title>
 
@@ -13,48 +12,57 @@
 <body>
     <div class="container">
         <div class="calc">
-            <div class="screen">0</div>
-            <button data-all-clear>AC</button>
+            <div class="screen-container">
+                <div class="last-expression">5+5</div>
+                <div class="screen">0</div>
+            </div>
+
+            <button tabindex="-1" data-all-clear>AC</button>
             
-            <button data-operation value="pow">X<sup>2</sup></button>
-            <button data-operation value="sqrt">
+            <button tabindex="-1" data-operation value="square">X<sup>2</sup></button>
+            <button tabindex="-1" data-operation value="sqrt">
                 <span style="white-space: nowrap;">
-                    &radic;<span style="text-decoration:overline;">&nbsp;X&nbsp;</span>
+                    &radic;<span style="text-decoration:overline;">&nbsp;x&nbsp;</span>
                 </span>
             </button>
             
-            <button data-operation value="fact">n!</button>
-            <button data-operation value="">+/-</button>
-            <button data-operation value="(">(</button>
-            <button data-operation value=")">)</button>
-            <button data-operation value="*">*</button>
-            <button data-number>7</button>
-            <button data-number>8</button>
-            <button data-number>9</button>
-            <button data-operation value="÷">÷</button>  
-            <button data-number>4</button>
-            <button data-number>5</button>
-            <button data-number>6</button>
-            <button data-operation value="+">+</button>
-            <button data-number>1</button>
-            <button data-number>2</button>
-            <button data-number>3</button>
-            <button data-operation value="-">-</button>
-            <button data-number>.</button>
-            <button data-number>0</button>
-            <button class="double" data-evaluate>=</button>
+            <button tabindex="-1" data-operation value="!">n!</button>
+            <button tabindex="-1" data-operation value="">+/-</button>
+            <button tabindex="-1" data-operation value="(">(</button>
+            <button tabindex="-1" data-operation value=")">)</button>
+            <button tabindex="-1" data-operation value="*">*</button>
+            <button tabindex="-1" data-number>7</button>
+            <button tabindex="-1" data-number>8</button>
+            <button tabindex="-1" data-number>9</button>
+            <button tabindex="-1" data-operation value="÷">÷</button>  
+            <button tabindex="-1" data-number>4</button>
+            <button tabindex="-1" data-number>5</button>
+            <button tabindex="-1" data-number>6</button>
+            <button tabindex="-1" data-operation value="+">+</button>
+            <button tabindex="-1" data-number>1</button>
+            <button tabindex="-1" data-number>2</button>
+            <button tabindex="-1" data-number>3</button>
+            <button tabindex="-1" data-operation value="-">-</button>
+            <button tabindex="-1" data-number>.</button>
+            <button tabindex="-1" data-number>0</button>
+            <button tabindex="-1" class="double" data-evaluate>=</button>
+        </div>
+        <div class="history">
+            <div class="history_header"><h1>HISTORY</h1></div>
+            <div class="history_container"></div>
         </div>
 
     </div>
 
     <h3>Huskeliste</h3>
     <ul>
-        <li>gange og dele med negative tall</li>
+        <li>fiks negative nummer</li>
+        <li><s>gange og dele med negative tall</s></li>
         <li>parenteser</li>
         <li>+/-</li>
-        <li>implementere X<sup>2</sup> i UI</li>
+        <li><s>implementere X<sup>2</sup> i UI</s></li>
         <li>implementere <span style="white-space: nowrap;">&radic;<span style="text-decoration:overline;">&nbsp;X&nbsp;</span></span> i UI</li>
-        <li>implementere n! i UI</li>
+        <li><s>implementere n! i UI</s></li>
         <li></li>
     </ul>
 </body>

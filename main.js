@@ -1,3 +1,4 @@
+const lastExpressionScreen = document.querySelector('.last-expression')
 const screen = document.querySelector('.screen')
 const numberButtons = document.querySelectorAll('[data-number]')
 const operationButtons = document.querySelectorAll('[data-operation]')
@@ -9,10 +10,19 @@ let expressionArray = []
 let expression = ""
 let currentNumber = ""
 
+// indicates what parenthesis we can use
+let allowStartOfparenthesis = true
+let allowEndOfparenthesis = false
+
 
 numberButtons.forEach(numberButton => {
     numberButton.addEventListener('click', () => {
         console.log(numberButton.innerHTML)
+
+        if (expressionArray[expressionArray.length - 1] == ")") {
+            expressionArray.push("*")
+            expression += " * "
+        }
 
         currentNumber += numberButton.innerHTML
 
@@ -26,25 +36,66 @@ operationButtons.forEach(operationButton => {
     operationButton.addEventListener('click', () => {
         console.log(operationButton.value)
 
-        if (currentNumber != "" || operationButton.value == "(" || operationButton.value == "-") {
+        // if (currentNumber != "" || operationButton.value == "(" || operationButton.value == ")" || operationButton.value == "-" || operationButton.value == "!") {
 
-            expressionArray.push(currentNumber)
-            expressionArray.push(operationButton.value)
+            currentNumber != "" ? expressionArray.push(currentNumber) : ""
+
+
+
+            if (operationButton.value != "(" && operationButton.value != ")" && operationButton.value != "square" && operationButton.value != "!") {
+
+                
+                expressionArray.push(operationButton.value)
+                expression += ` ${operationButton.value} `
+
+            } else if ((operationButton.value == "(" && allowStartOfparenthesis) || (operationButton.value == ")" && allowEndOfparenthesis)) {
+
+                if ((currentNumber != "" || expressionArray[expressionArray.length - 1] == ")") && operationButton.value == "(") {
+                    expressionArray.push("*")
+                    expression += " * "
+                }
+
+                expressionArray.push(operationButton.value)
+                expression += ` ${operationButton.value} `
+
+                if (allowStartOfparenthesis) {
+                    allowStartOfparenthesis = false
+                    allowEndOfparenthesis = true
+                } else {
+                    allowEndOfparenthesis = false
+                    allowStartOfparenthesis = true
+                }
+            } else if (operationButton.value == "square" && currentNumber != "") {
+                expressionArray.push(operationButton.value)
+                expression += "<sup>2</sup>"
+            } else if (operationButton.value == "!") {
+                currentNumber = parseFloat(currentNumber)
+                if (!Number.isInteger(currentNumber)) return
+                
+
+                expressionArray.push(operationButton.value)
+                expression += `${operationButton.value} `
+            }
+            
             currentNumber = ""
-
-            expression += ` ${operationButton.value} `
+            
+            
     
             screen.innerHTML = expression
-
-        }
+            // let lastOperation = operationButton.value
+        // }
     })
 })
 
 allClearButton.addEventListener('click', () => {
 
+    expressionArray = []
     expression = ""
     currentNumber = ""
-    expressionArray = []
+
+    allowStartOfparenthesis = true
+    allowEndOfparenthesis = false
+
     screen.innerHTML = "0"
 
 })
@@ -64,10 +115,50 @@ evaluateButton.addEventListener('click', () => {
 function evaluate() {
 
     let notSplitted = true
+    let fixingParenthesis = false
+    let tempArray, indexOfStartParenthesis
 
     while (notSplitted) {
+
+        if (expressionArray.indexOf("(") != -1 && expressionArray.indexOf(")") != -1) {
+            fixingParenthesis = true
+            indexOfStartParenthesis = expressionArray.indexOf("(")
+            let indexOfEndParenthesis = expressionArray.indexOf(")")
+            let numberOfItemsToRemove = indexOfEndParenthesis - indexOfStartParenthesis + 1
+
+            // let checkArray = expressionArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
+
+            tempArray = expressionArray
+            expressionArray = []
+            // tempArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
+            expressionArray = tempArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
+            expressionArray.shift()
+            expressionArray.pop()
+            console.log(expressionArray)
+        }
+
+        else if (expressionArray.indexOf("!") != -1) {
+            console.log("factorial")
+            let indexOfFactorial = expressionArray.indexOf("!")
+
+            let base = expressionArray[indexOfFactorial - 1]
+            base = parseFloat(base)
+
+            expressionArray.splice(indexOfFactorial - 1, 2, factorial(base))
+            console.log(expressionArray)
+        } else if (expressionArray.indexOf("square") != -1) {
+            console.log("square")
+            let indexOfSquare = expressionArray.indexOf("square")
+
+            let base = expressionArray[indexOfSquare - 1]
+            base = parseFloat(base)
+            console.log(expressionArray)
+            expressionArray.splice(indexOfSquare - 1, 2, square(base))
+            console.log(expressionArray)
+        }
+
         // check if the expression includes multiplication or division
-        if (expressionArray.indexOf("*") != -1 || expressionArray.indexOf("÷") != -1) {
+        else if (expressionArray.indexOf("*") != -1 || expressionArray.indexOf("÷") != -1) {
 
             // if there is multiplication in the expression, set indexOfMultiplication to the index in the array. Else set it to 1000, to ensure that the next if-statement runs properly
             let indexOfMultiplication = expressionArray.indexOf("*") != -1 ? expressionArray.indexOf("*") : 1000
@@ -122,24 +213,46 @@ function evaluate() {
                 console.log(expressionArray)
             } else {
                 console.log("subtraction")
-                let number1 = expressionArray[indexOfSubtraction - 1]
-                number1 = parseFloat(number1)
-                let number2 = expressionArray[indexOfSubtraction + 1]
-                number2 = parseFloat(number2)
+                
+                if (expressionArray[indexOfSubtraction - 1] == undefined) {
+                    expressionArray.unshift(0)
+                } 
 
-                expressionArray.splice(indexOfSubtraction - 1, 3, number1 - number2)
+                // setTimeout(() => {
+                    
+                    let number1 = expressionArray[indexOfSubtraction - 1]
+                    number1 = parseFloat(number1)
+                    
+                    let number2 = expressionArray[indexOfSubtraction + 1]
+                    number2 = parseFloat(number2)
+
+                    expressionArray.splice(indexOfSubtraction - 1, 3, number1 - number2)
+                // }, 5);
+
         
                 console.log(expressionArray)
             }
             
-        } else {
+        } else if (fixingParenthesis) {
+            fixingParenthesis = false
+
+            let answerOfParenthesis = expressionArray[0]
+            expressionArray = tempArray
+            expressionArray.splice(indexOfStartParenthesis, 0, answerOfParenthesis)
+            console.log(expressionArray)
+        }
+         else {
 
             // makes sure nothing went wrong, and prevents the display from showing "undefined" if nothing is entered before hitting the evaluateButton
             if (expressionArray.length == 1) {
 
-                // the answer is the last number in the expressionArray
+                // the answer is the only number left in the expressionArray
                 let answer = expressionArray[0]
-                screen.innerHTML = answer
+
+                expressionArray = []
+                currentNumber = answer
+                expression = answer
+                screen.innerHTML = expression
 
             } 
 
@@ -149,7 +262,6 @@ function evaluate() {
     }
     
     
-
 }
 
 
@@ -158,6 +270,15 @@ function evaluate() {
 function multiply(number1, number2) {
 
     let product = 0
+    let number1IsNegative = false
+    let number2IsNegative = false
+
+    number1 < 0 ? number1IsNegative = true : ""
+    number2 < 0 ? number2IsNegative = true : ""
+
+    number1 = Math.abs(number1)
+    number2 = Math.abs(number2)
+
 
     // if both numbers passed in is floats, multiply to get 5 decimalpoints accuracy
     if (!Number.isInteger(number1) && !Number.isInteger(number2)) {
@@ -174,6 +295,7 @@ function multiply(number1, number2) {
         return product
     }
     
+
     // if number2 is a float, swap the values of number1 and number2
     if (!Number.isInteger(number2)) {
         let temp = number2
@@ -186,6 +308,13 @@ function multiply(number1, number2) {
     }
 
 
+    // if one the numbers passed in was negative, make the product negative
+    if (!(number1IsNegative && number2IsNegative) && (number1IsNegative || number2IsNegative)) {
+        product = "-" + product
+        product = parseFloat(product)
+    }
+
+
     return product
 }
 
@@ -193,6 +322,14 @@ function multiply(number1, number2) {
 function divide(dividend, divisor) {
 
     let quotient = 0
+    let dividendIsNegative = false
+    let divisorIsNegative = false
+
+    dividend < 0 ? dividendIsNegative = true : ""
+    divisor < 0 ? divisorIsNegative = true : ""
+
+    dividend = Math.abs(dividend)
+    divisor = Math.abs(divisor)
 
 
     while (dividend - divisor >= 0) {
@@ -234,10 +371,16 @@ function divide(dividend, divisor) {
     quotient = parseFloat(quotient)
     
 
+    // if one the numbers passed in was negative, make the quotient negative
+    if (!(dividendIsNegative && divisorIsNegative) && (dividendIsNegative || divisorIsNegative)) {
+        quotient = "-" + quotient
+        quotient = parseFloat(quotient)
+    }
+
     return quotient
 }
 
-function pow(base) {
+function square(base) {
 
     return multiply(base, base)
 
@@ -245,6 +388,15 @@ function pow(base) {
 
 function factorial(base) {
 
+    if (base < 0 || !Number.isInteger(base)) return
+
+    // the factorial of any number larger than 170 will return "infinity" in JS, so we can save some time by just returning "infinity" if the number is larger than 170
+    if (base > 170) return "infinity"
+
+    // it's convenient the set the initial answer as 1, for two reasons: 
+    // 0! = 1 
+    // and 
+    // we get the correct starting number for every n, example: 6! => 1*6 as the first operation, then 6*5 and so on
     let answer = 1
 
     for (let i = base; i > 0; i--) {
@@ -256,4 +408,4 @@ function factorial(base) {
     return answer
 }
 
-console.log(factorial(5))
+
