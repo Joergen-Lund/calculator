@@ -1,3 +1,4 @@
+const lastExpressionScreen = document.querySelector('.last-expression')
 const screen = document.querySelector('.screen')
 const numberButtons = document.querySelectorAll('[data-number]')
 const operationButtons = document.querySelectorAll('[data-operation]')
@@ -124,6 +125,8 @@ function evaluate() {
             indexOfStartParenthesis = expressionArray.indexOf("(")
             let indexOfEndParenthesis = expressionArray.indexOf(")")
             let numberOfItemsToRemove = indexOfEndParenthesis - indexOfStartParenthesis + 1
+
+            // let checkArray = expressionArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
 
             tempArray = expressionArray
             expressionArray = []
@@ -390,7 +393,7 @@ function factorial(base) {
     // the factorial of any number larger than 170 will return "infinity" in JS, so we can save some time by just returning "infinity" if the number is larger than 170
     if (base > 170) return "infinity"
 
-    // it's convenient the set the initial answer as 1, because of two reasons: 
+    // it's convenient the set the initial answer as 1, for two reasons: 
     // 0! = 1 
     // and 
     // we get the correct starting number for every n, example: 6! => 1*6 as the first operation, then 6*5 and so on

@@ -4,7 +4,7 @@
 
 body {
     margin: 0;
-    background-color: #777;
+    /* background-color: #777; */
 }
 
 .container {
@@ -26,13 +26,21 @@ body {
     grid-column: span 4;
     
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
+    flex-direction: column;
+    /* justify-content: flex-end; */
+    align-items: flex-end;
+}
+
+.last-expression {
+    padding: 1rem 1rem .5rem 1rem;
+    word-wrap: break-word;
+    color: rgb(172, 172, 172);
+    font-size: 1.4rem;
 }
 
 .screen {
-
-    padding: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 1rem;
     word-wrap: break-word;
     color: #eee;
     font-size: 2.2rem;
@@ -53,4 +61,50 @@ h3 {
 
 ul {
     margin: 1rem 3rem;
+}
+
+.history {
+    height: 720px;
+    width: 400px;
+    border: 1px solid black;
+}
+
+.history h1 {
+    margin: 0;
+}
+
+.history_header {
+    height: 120px;
+    text-align: center;
+    line-height: 120px;
+    font-size: 1.5em;
+    border-bottom: 1px solid black;
+}
+
+.history_container {
+    height: calc(720px - 120px);
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll; 
+}
+
+.history_container span {
+    display: block;
+    pointer-events: none; /* ensures that the spans don't conflict with the click event */
+}
+
+.history_container > div{
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    justify-content: space-evenly;
+    font-size: 1.7em;
+    padding-right: 10px;
+    position: relative;
+}
+
+.history_container > div:hover {
+    background-color: #eee;
+    cursor: pointer;
 }
