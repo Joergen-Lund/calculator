@@ -5,15 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculator</title>
 
+    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 
+    <!-- JS -->
     <script src="main.js" defer></script>
+
+
+    <!-- fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 </head>
 <body>
+    <div class="error-container">Something went wrong</div>
+
     <div class="container">
         <div class="calc">
             <div class="screen-container">
-                <div class="last-expression">5+5</div>
+                <div class="last-expression">0</div>
                 <div class="screen">0</div>
             </div>
 
@@ -21,49 +35,55 @@
             
             <button tabindex="-1" data-operation value="square">X<sup>2</sup></button>
             <button tabindex="-1" data-operation value="sqrt">
-                <span style="white-space: nowrap;">
-                    &radic;<span style="text-decoration:overline;">&nbsp;x&nbsp;</span>
-                </span>
+                <span class="sqrt">&radic;<span class="sqrt_num">(x)</span></span>
+                <!-- <span class="sqrt">
+                    &radic;<span class="sqrt-num">&nbsp;x&nbsp;</span>
+                </span> -->
             </button>
             
             <button tabindex="-1" data-operation value="!">n!</button>
-            <button tabindex="-1" data-operation value="">+/-</button>
+            <button tabindex="-1" data-operation value="">&plusmn;</button>
             <button tabindex="-1" data-operation value="(">(</button>
             <button tabindex="-1" data-operation value=")">)</button>
-            <button tabindex="-1" data-operation value="*">*</button>
+            <button tabindex="-1" data-operation value="×">&times;</button>
             <button tabindex="-1" data-number>7</button>
             <button tabindex="-1" data-number>8</button>
             <button tabindex="-1" data-number>9</button>
-            <button tabindex="-1" data-operation value="÷">÷</button>  
+            <button tabindex="-1" data-operation value="÷">&divide;</button>  
             <button tabindex="-1" data-number>4</button>
             <button tabindex="-1" data-number>5</button>
             <button tabindex="-1" data-number>6</button>
-            <button tabindex="-1" data-operation value="+">+</button>
+            <button tabindex="-1" data-operation value="+">&plus;</button>
             <button tabindex="-1" data-number>1</button>
             <button tabindex="-1" data-number>2</button>
             <button tabindex="-1" data-number>3</button>
-            <button tabindex="-1" data-operation value="-">-</button>
+            <button tabindex="-1" data-operation value="-">&minus;</button>
             <button tabindex="-1" data-number>.</button>
             <button tabindex="-1" data-number>0</button>
             <button tabindex="-1" class="double" data-evaluate>=</button>
-        </div>
-        <div class="history">
-            <div class="history_header"><h1>HISTORY</h1></div>
-            <div class="history_container"></div>
-        </div>
 
-    </div>
+
+            <!-- <div class="history"> -->
+                <div class="history_header">
+                    <!-- <div class="clear-history"><i class="fa">&#xf014;</i></div> -->
+                    <i class="fa clear-history" title="Slett historikk">&#xf014;</i>
+                    <h3>historikk</h3>
+                </div>
+                <div class="history_container"></div>
+            <!-- </div> -->
+
+        </div> <!-- /.calc -->
+
+    </div> <!-- /.conatiner -->
 
     <h3>Huskeliste</h3>
     <ul>
+        <li>fiks "22 * ÷ + -"</li>
+        <li>endre "-" til "&minus;" globalt</li>
         <li>fiks negative nummer</li>
-        <li><s>gange og dele med negative tall</s></li>
         <li>parenteser</li>
         <li>+/-</li>
-        <li><s>implementere X<sup>2</sup> i UI</s></li>
         <li>implementere <span style="white-space: nowrap;">&radic;<span style="text-decoration:overline;">&nbsp;X&nbsp;</span></span> i UI</li>
-        <li><s>implementere n! i UI</s></li>
-        <li></li>
     </ul>
 </body>
 </html>
