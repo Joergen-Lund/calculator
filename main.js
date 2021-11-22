@@ -4,86 +4,54 @@ const numberButtons = document.querySelectorAll('[data-number]')
 const operationButtons = document.querySelectorAll('[data-operation]')
 const allClearButton = document.querySelector('[data-all-clear]')
 const evaluateButton = document.querySelector('[data-evaluate]')
+const historyContainer = document.querySelector('.history_container')
+const clearHistoryButton = document.querySelector('.clear-history')
+const errorContainer = document.querySelector('.error-container')
 
 
+let validButtons = ["+", "-", "*", "/", "(", ")", "Enter", "Backspace", "!"];
 let expressionArray = []
 let expression = ""
 let currentNumber = ""
 
-// indicates what parenthesis we can use
-let allowStartOfparenthesis = true
-let allowEndOfparenthesis = false
+// for storing potensial error messages
+let error = ""
+
+
+// currently we can't add parentheses inside a pair of parentheses, due to how the evaluate() is set up. ex. (5 (1+2)) (1 + 2)
+// indicates what parentheses we can use
+let allowStartOfParenthesis = true
+let allowEndOfParenthesis = false
+
+
+// if we want to calculate 5 * - 6, this wouldn't work with the way we have set up the evaluate() and the expressionArray. To get around this we add 5 * (0 - 6) in the code, and 5 * - 6 in the UI.
+// the following boolean tells us when we should close off the parentheses
+let closeParenthesisAfterNextNumber = false
+
+
+let sqrtOfNextNumber = false
 
 
 numberButtons.forEach(numberButton => {
-    numberButton.addEventListener('click', () => {
-        console.log(numberButton.innerHTML)
+    numberButton.addEventListener('click', () => inputNumber(numberButton.innerHTML))
+})
 
-        if (expressionArray[expressionArray.length - 1] == ")") {
-            expressionArray.push("*")
-            expression += " * "
-        }
-
-        currentNumber += numberButton.innerHTML
-
-        expression += numberButton.innerHTML
-
-        screen.innerHTML = expression
-    })
+document.addEventListener("keydown", e => {
+    console.log(e.key)
+    if(e.key == "Enter") {
+        e.preventDefault()
+    }
+    if(Number.isInteger(Number.parseInt(e.key)) || e.key == ".") {
+        inputNumber(e.key)
+    }else if(validButtons.includes(e.key)) {
+        inputOperation(e.key)
+    }
 })
 
 operationButtons.forEach(operationButton => {
     operationButton.addEventListener('click', () => {
         console.log(operationButton.value)
-
-        // if (currentNumber != "" || operationButton.value == "(" || operationButton.value == ")" || operationButton.value == "-" || operationButton.value == "!") {
-
-            currentNumber != "" ? expressionArray.push(currentNumber) : ""
-
-
-
-            if (operationButton.value != "(" && operationButton.value != ")" && operationButton.value != "square" && operationButton.value != "!") {
-
-                
-                expressionArray.push(operationButton.value)
-                expression += ` ${operationButton.value} `
-
-            } else if ((operationButton.value == "(" && allowStartOfparenthesis) || (operationButton.value == ")" && allowEndOfparenthesis)) {
-
-                if ((currentNumber != "" || expressionArray[expressionArray.length - 1] == ")") && operationButton.value == "(") {
-                    expressionArray.push("*")
-                    expression += " * "
-                }
-
-                expressionArray.push(operationButton.value)
-                expression += ` ${operationButton.value} `
-
-                if (allowStartOfparenthesis) {
-                    allowStartOfparenthesis = false
-                    allowEndOfparenthesis = true
-                } else {
-                    allowEndOfparenthesis = false
-                    allowStartOfparenthesis = true
-                }
-            } else if (operationButton.value == "square" && currentNumber != "") {
-                expressionArray.push(operationButton.value)
-                expression += "<sup>2</sup>"
-            } else if (operationButton.value == "!") {
-                currentNumber = parseFloat(currentNumber)
-                if (!Number.isInteger(currentNumber)) return
-                
-
-                expressionArray.push(operationButton.value)
-                expression += `${operationButton.value} `
-            }
-            
-            currentNumber = ""
-            
-            
-    
-            screen.innerHTML = expression
-            // let lastOperation = operationButton.value
-        // }
+        inputOperation(operationButton.value)
     })
 })
 
@@ -93,37 +61,283 @@ allClearButton.addEventListener('click', () => {
     expression = ""
     currentNumber = ""
 
-    allowStartOfparenthesis = true
-    allowEndOfparenthesis = false
+    error = ""
+    displayError()
 
+    allowStartOfParenthesis = true
+    allowEndOfParenthesis = false
+
+    lastExpressionScreen.style.visibility = "hidden"
     screen.innerHTML = "0"
 
 })
 
-evaluateButton.addEventListener('click', () => {
+evaluateButton.addEventListener('click', () => inputOperation("Enter"))
 
+clearHistoryButton.addEventListener('click', clearHistory)
+
+
+function inputOperation(input) {
+
+    // currentNumber != "" ? expressionArray.push(currentNumber) : ""
     if (currentNumber != "") {
         expressionArray.push(currentNumber)
+
+        if (closeParenthesisAfterNextNumber) {
+            expressionArray.push(")")
+            closeParenthesisAfterNextNumber = false
+        }
     }
 
-    console.log(expressionArray)
 
-    evaluate()
-})
+    switch(input) {
+
+        case "Enter":
+            
+            evaluate()
+            
+            break
+
+        case "Backspace":
+            
+            expressionArray.pop()            
+
+            // todo: fix this
+            expression = expressionArray.length > 0 ? expressionArray.join(" ").toString() : "0"
+            
+            
+            break
+
+        case "(":
+            if (allowStartOfParenthesis) {
+
+                if (currentNumber != "" || expressionArray[expressionArray.length - 1] == ")" || expressionArray[expressionArray.length - 1] == "!") {
+                    expressionArray.push("×")
+                    expression += " × "
+                }
+                
+                expression += ` ${input} `
+                
+                console.log(currentNumber)
+                expressionArray.push(input)
+                
+
+                allowStartOfParenthesis = !allowStartOfParenthesis
+                allowEndOfParenthesis = !allowEndOfParenthesis
+
+            }
+            
+
+            break
+
+        case ")":
+            if (allowEndOfParenthesis) {
+
+                expressionArray.push(input)
+                expression += ` ${input} `
+    
+                allowStartOfParenthesis = !allowStartOfParenthesis
+                allowEndOfParenthesis = !allowEndOfParenthesis
+    
+            }
+
+            break
+
+        case "square":
+
+            expressionArray.push(input)
+            expression += "<sup>2</sup> "
+            
+            break
+
+        case "sqrt":
+
+            expressionArray.push("sqrt")
+            expression += ` &radic; `
+
+            sqrtOfNextNumber = true
+
+
+            inputOperation("(")
+            
+            break
+
+        case "!":
+
+            expressionArray.push(input)
+            expression += "! "
+    
+            
+            break
+
+        case "*":
+            input = "×"
+
+            expressionArray.push(input)
+            // expression += ` &times; `
+            expression += ` × `
+    
+
+            break
+        
+        case "/":
+            input = "÷"
+
+            expressionArray.push(input)
+            expression += ` &divide; `
+    
+
+            break
+
+        case "-":
+            const values = ["×", "÷", "+"]
+            if (values.includes(expressionArray[expressionArray.length - 1]) || expressionArray.length == 0) {
+                console.log(expressionArray)
+                expressionArray.push("(")
+                console.log(expressionArray)
+                expressionArray.push(0)
+                console.log(expressionArray)
+                expressionArray.push(input)
+                console.log(expressionArray)
+
+                closeParenthesisAfterNextNumber = true
+            } else {
+                expressionArray.push(input)
+            }
+            expression += ` &minus; `
+    
+
+            break
+
+        default:
+                expressionArray.push(input)
+                expression += ` ${input} `
+        
+ 
+            break
+    }
+
+    currentNumber = ""
+    if (input != "Enter") {
+        expression = expression.replace("-", "&minus; ")
+        
+        expression ? screen.innerHTML = expression : "0"
+        
+    }
+
+}
+
+function inputNumber(input) {
+
+    if (expressionArray[expressionArray.length - 1] == ")") {
+        expressionArray.push("×")
+        expression += " × "
+    }
+
+    currentNumber += input
+    expression == "0" ? expression = input : expression += input
+    
+    screen.innerHTML = expression
+}
+
+//appends the expression and answer to the history tab
+function appendHistory(expression, answer) {
+    const div = document.createElement("div")
+    div.setAttribute("title", "venstreklikk for å legge til svar, høyreklikk for å legge til uttrykk")
+    div.addEventListener("click", historyClick)
+    div.addEventListener("contextmenu", historyClick)
+    const spanExp = document.createElement("span")
+    spanExp.setAttribute("data-expression", "")
+    spanExp.innerHTML = expression
+
+    const spanAns = document.createElement("span")
+    spanAns.setAttribute("data-answer", "")
+    spanAns.innerHTML = `= ${answer}`
+
+    div.appendChild(spanExp)
+    div.appendChild(spanAns)
+    historyContainer.appendChild(div)
+
+    historyContainer.scrollTo(0, historyContainer.scrollHeight)
+}
+
+
+function historyClick(event) {
+    console.log(event.type)
+    const historyExp = event.target.querySelector("[data-expression]").innerText
+    let answer = event.target.querySelector("[data-answer]").innerText
+    answer = answer.substring(1, answer.length) // removes the "="-sign from the expression
+
+    if(event.type == "click") { //handles left click
+        // TODO: better solutions to handle negative numbers when adding them to the expression?
+        if(answer < 0) {
+
+            expressionArray.push("(")
+            console.log(expressionArray)
+            expressionArray.push(0)
+            console.log(expressionArray)
+            expressionArray.push("-")
+            expression += " &minus; "
+            console.log(expressionArray)
+
+            closeParenthesisAfterNextNumber = true
+        }
+        // if (expressionArray.length > 0) {
+        //     inputOperation("+")
+        // }
+        inputNumber(Math.abs(answer))
+
+    }else { //handles right click
+        event.preventDefault()
+
+        currentNumber = ""
+        expression += historyExp
+        expressionArray = expressionArray.concat(expression.split(" "))
+        console.log(expression.split(" "))
+        screen.innerHTML = expression
+        console.log(expressionArray)
+    }
+    
+
+    console.log(historyExp, answer)
+
+}
+
+function clearHistory() {
+    historyContainer.innerHTML = ""
+}
+
+
+
 
 
 function evaluate() {
 
+    console.log(expressionArray)
+
+    // for the history tab
+    // let historyExpression = expressionArray.join(" ")
+    let historyExpression = expression
+
+
+    lastExpressionScreen.innerHTML = expression
+    lastExpressionScreen.style.visibility = 'visible'
+
     let notSplitted = true
-    let fixingParenthesis = false
+    let fixingParentheses = false
     let tempArray, indexOfStartParenthesis
 
     while (notSplitted) {
 
-        if (expressionArray.indexOf("(") != -1 && expressionArray.indexOf(")") != -1) {
-            fixingParenthesis = true
+        // if the expression includes a value of "infinity", we won't be able to solve the equation. Therefore we set the expressionArray to a single value of "infinity", and the function will go to the else at the end of evaluate() and display the value, and add to history
+        if (expressionArray.indexOf("infinity") != -1) {    
+            expressionArray = ["infinity"]
+        }
+
+        if (expressionArray.indexOf("(") != -1) {
+            fixingParentheses = true
             indexOfStartParenthesis = expressionArray.indexOf("(")
-            let indexOfEndParenthesis = expressionArray.indexOf(")")
+            let indexOfEndParenthesis = expressionArray.indexOf(")") != -1 ? expressionArray.indexOf(")") : expressionArray.length - 1
             let numberOfItemsToRemove = indexOfEndParenthesis - indexOfStartParenthesis + 1
 
             // let checkArray = expressionArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
@@ -133,7 +347,9 @@ function evaluate() {
             // tempArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
             expressionArray = tempArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
             expressionArray.shift()
-            expressionArray.pop()
+
+            if (expressionArray.indexOf(")") != -1) expressionArray.pop()
+            
             console.log(expressionArray)
         }
 
@@ -155,13 +371,22 @@ function evaluate() {
             console.log(expressionArray)
             expressionArray.splice(indexOfSquare - 1, 2, square(base))
             console.log(expressionArray)
+        } else if (expressionArray.indexOf("sqrt") != -1) {
+            console.log("squareRoot")
+            let indexOfSquareRoot = expressionArray.indexOf("sqrt")
+
+            let base = expressionArray[indexOfSquareRoot + 1]
+            base = parseFloat(base)
+            console.log(expressionArray)
+            expressionArray.splice(indexOfSquareRoot, 2, squareRoot(base))
+            console.log(expressionArray)
         }
 
         // check if the expression includes multiplication or division
-        else if (expressionArray.indexOf("*") != -1 || expressionArray.indexOf("÷") != -1) {
+        else if (expressionArray.indexOf("×") != -1 || expressionArray.indexOf("÷") != -1) {
 
             // if there is multiplication in the expression, set indexOfMultiplication to the index in the array. Else set it to 1000, to ensure that the next if-statement runs properly
-            let indexOfMultiplication = expressionArray.indexOf("*") != -1 ? expressionArray.indexOf("*") : 1000
+            let indexOfMultiplication = expressionArray.indexOf("×") != -1 ? expressionArray.indexOf("×") : 1000
 
             // if there is division in the expression, set indexOfDivision to the index in the array. Else set it to 1000, to ensure that the next if-statement runs properly
             let indexOfDivision = expressionArray.indexOf("÷") != -1 ? expressionArray.indexOf("÷") : 1000
@@ -227,21 +452,20 @@ function evaluate() {
                     number2 = parseFloat(number2)
 
                     expressionArray.splice(indexOfSubtraction - 1, 3, number1 - number2)
-                // }, 5);
+                // }, 5)
 
         
                 console.log(expressionArray)
             }
             
-        } else if (fixingParenthesis) {
-            fixingParenthesis = false
+        } else if (fixingParentheses) {
+            fixingParentheses = false
 
-            let answerOfParenthesis = expressionArray[0]
+            let answerOfParentheses = expressionArray[0]
             expressionArray = tempArray
-            expressionArray.splice(indexOfStartParenthesis, 0, answerOfParenthesis)
+            expressionArray.splice(indexOfStartParenthesis, 0, answerOfParentheses)
             console.log(expressionArray)
-        }
-         else {
+        } else {
 
             // makes sure nothing went wrong, and prevents the display from showing "undefined" if nothing is entered before hitting the evaluateButton
             if (expressionArray.length == 1) {
@@ -249,18 +473,35 @@ function evaluate() {
                 // the answer is the only number left in the expressionArray
                 let answer = expressionArray[0]
 
-                expressionArray = []
+                appendHistory(historyExpression, answer); //adds the expression and answer to the history
+
+
+                expressionArray = [answer]
+                // expressionArray = []
                 currentNumber = answer
                 expression = answer
-                screen.innerHTML = expression
 
+                if (answer < 0) {
+                    answer = Math.abs(answer)
+                    answer = ` &minus; ${answer}`
+                }
+                
+                screen.innerHTML = answer
+
+
+
+            } else {
+                error = "something went wrong with the execution"
+                screen.innerHTML = "error"
             } 
 
             // stops the while-loop
             notSplitted = false
         }
-    }
+
+    } // end of while-loop
     
+    displayError()
     
 }
 
@@ -320,6 +561,9 @@ function multiply(number1, number2) {
 
 
 function divide(dividend, divisor) {
+
+    if (divisor == 0) return "undefined"
+
 
     let quotient = 0
     let dividendIsNegative = false
@@ -386,20 +630,42 @@ function square(base) {
 
 }
 
-function factorial(base) {
+function squareRoot(base) {
 
-    if (base < 0 || !Number.isInteger(base)) return
+    return Math.sqrt(base)
 
-    // the factorial of any number larger than 170 will return "infinity" in JS, so we can save some time by just returning "infinity" if the number is larger than 170
-    if (base > 170) return "infinity"
+}
+
+function factorial(n) {
+
+    if (n < 0) {
+        error = "Kan ikke regne ut fakultet av negative tall"
+        return "error"
+    } 
+    if (!Number.isInteger(n)) {
+        error = "Kan ikke regne ut fakultet av desimaltall"
+        return "error"
+    } 
+        
+
+
+    // "170 is the largest integer for which its factorial can be stored in IEEE 754 double-precision floating-point format." (wikipedia: https://en.wikipedia.org/wiki/170_(number))
+
+    // if we try to get the factorial of 171, JS will return "infinity", because it can't store that large numbers
+    // therefore we can save some time by just returning "infinity" if the number is larger than 170
+    if (n > 170) {
+        error = "Kan ikke regne ut fakultet for tall høyere enn 170"   
+        return "infinity"
+    }
+    
 
     // it's convenient the set the initial answer as 1, for two reasons: 
-    // 0! = 1 
+    // 0! = 1
     // and 
-    // we get the correct starting number for every n, example: 6! => 1*6 as the first operation, then 6*5 and so on
+    // we get the correct starting number for every other n, example: 6! => 1*6 as the first operation, then 6*5 and so on
     let answer = 1
 
-    for (let i = base; i > 0; i--) {
+    for (let i = n; i > 0; i--) {
 
         answer = multiply(answer, i)
     
@@ -409,3 +675,16 @@ function factorial(base) {
 }
 
 
+function displayError() {
+    if (error != "") {
+        
+        errorContainer.innerHTML = error
+        errorContainer.style.display = "flex"
+        
+        error = ""
+    
+    } else {
+        errorContainer.style.display = "none"
+    }
+    
+}
