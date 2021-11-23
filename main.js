@@ -28,7 +28,7 @@ let allowEndOfParenthesis = false
 // the following boolean tells us when we should close off the parentheses
 let closeParenthesisAfterNextNumber = false
 
-
+// let chooseExponent = true
 let sqrtOfNextNumber = false
 
 
@@ -104,6 +104,7 @@ function inputOperation(input) {
 
             // todo: fix this
             expression = expressionArray.length > 0 ? expressionArray.join(" ").toString() : "0"
+            // expression += " "
             
             
             break
@@ -151,6 +152,13 @@ function inputOperation(input) {
             break
 
         case "sqrt":
+
+            if (currentNumber != "") {
+                expressionArray.push("×")
+                expression += " × "
+
+                currentNumber = ""
+            }
 
             expressionArray.push("sqrt")
             expression += ` &radic; `
@@ -624,45 +632,83 @@ function divide(dividend, divisor) {
     return quotient
 }
 
-function square(base) {
+function pow(base, exponent) {
 
+    answer = 1
+
+    for (let i = 0; i < exponent; i++) {
+
+        answer = multiply(answer, base)
+        
+    }
+    
+    return answer
+}
+
+function square(base) {
+    
     return multiply(base, base)
 
 }
 
 function squareRoot(base) {
 
-    return Math.sqrt(base)
+    if (base < 0) return "error"
 
+    let square = 1
+    let i=0
+
+    while(i < 19) {
+        i++
+        console.log(i)
+
+        // newton's method: (base / square + square) / 2
+        square = divide((divide(base, square) + square), 2)
+        console.log(square + "    " + i)
+    }
+
+    return square;
 }
 
-function factorial(n) {
+function nthRoot(radicand, root) {
+    //https://www.geeksforgeeks.org/calculating-n-th-real-root-using-binary-search/?ref=lbp 
 
-    if (n < 0) {
-        error = "Kan ikke regne ut fakultet av negative tall"
-        return "error"
-    } 
-    if (!Number.isInteger(n)) {
-        error = "Kan ikke regne ut fakultet av desimaltall"
-        return "error"
-    } 
-        
-
-
-    // "170 is the largest integer for which its factorial can be stored in IEEE 754 double-precision floating-point format." (wikipedia: https://en.wikipedia.org/wiki/170_(number))
-
-    // if we try to get the factorial of 171, JS will return "infinity", because it can't store that large numbers
-    // therefore we can save some time by just returning "infinity" if the number is larger than 170
-    if (n > 170) {
-        error = "Kan ikke regne ut fakultet for tall høyere enn 170"   
-        return "infinity"
+    let low, high; //lower and upper limit of the nth-root of the radicand
+    /*if the radicand is in the range [0, 1), the nth-root of the radicand won't be lower than the radicand or higher than 1.
+     Example: square root of 0,54 is 0,73 */
+    if(0 <= radicand && radicand < 1) {
+        low = radicand;
+        high = 1;
+    }else {
+        low = 1;
+        high = radicand;
     }
-    
 
-    // it's convenient the set the initial answer as 1, for two reasons: 
-    // 0! = 1
-    // and 
-    // we get the correct starting number for every other n, example: 6! => 1*6 as the first operation, then 6*5 and so on
+    const accuracy = 0.0001; //The accuracy of the nth root. Example: 0.001 will have an accuracy up to three decimals
+
+    let guess = divide(low + high, 2);
+
+    while (true) {
+        let abs_error = Math.abs(pow(guess, root) - radicand);
+        if(abs_error > accuracy) {
+            if(pow(guess, root) > radicand) {
+                
+            }
+        } else {
+            break;
+        }
+        
+    }
+}
+
+/**
+ * @param {Number} n hola dora
+ * @return {String} something special
+ * 
+ */
+
+function factorial(n) {
+// we get the correct starting number for every other n, example: 6! => 1*6 as the first operation, then 6*5 and so on
     let answer = 1
 
     for (let i = n; i > 0; i--) {
@@ -673,6 +719,7 @@ function factorial(n) {
 
     return answer
 }
+
 
 
 function displayError() {
