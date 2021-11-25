@@ -570,8 +570,11 @@ function multiply(number1, number2) {
 
 function divide(dividend, divisor) {
 
-    if (divisor == 0) return "undefined"
-
+    if (divisor == 0) {
+        error = "Kan ikke dele på null"
+        return "undefined"
+    } 
+        
 
     let quotient = 0
     let dividendIsNegative = false
