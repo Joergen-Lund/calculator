@@ -28,7 +28,7 @@ let allowEndOfParenthesis = false
 // the following boolean tells us when we should close off the parentheses
 let closeParenthesisAfterNextNumber = false
 
-// let chooseExponent = true
+let chooseExponent = false
 let sqrtOfNextNumber = false
 
 
@@ -37,7 +37,6 @@ numberButtons.forEach(numberButton => {
 })
 
 document.addEventListener("keydown", e => {
-    console.log(e.key)
     if(e.key == "Enter") {
         e.preventDefault()
     }
@@ -50,7 +49,6 @@ document.addEventListener("keydown", e => {
 
 operationButtons.forEach(operationButton => {
     operationButton.addEventListener('click', () => {
-        console.log(operationButton.value)
         inputOperation(operationButton.value)
     })
 })
@@ -79,6 +77,12 @@ clearHistoryButton.addEventListener('click', clearHistory)
 
 function inputOperation(input) {
 
+    // need to choose the exponent before entering more operators
+    if (chooseExponent) return
+
+    const sup = document.createElement("sup")
+    let values
+
     // currentNumber != "" ? expressionArray.push(currentNumber) : ""
     if (currentNumber != "") {
         expressionArray.push(currentNumber)
@@ -88,7 +92,6 @@ function inputOperation(input) {
             closeParenthesisAfterNextNumber = false
         }
     }
-
 
     switch(input) {
 
@@ -101,11 +104,7 @@ function inputOperation(input) {
         case "Backspace":
             
             expressionArray.pop()            
-
-            // todo: fix this
             expression = expressionArray.length > 0 ? expressionArray.join(" ").toString() : "0"
-            // expression += " "
-            
             
             break
 
@@ -119,7 +118,7 @@ function inputOperation(input) {
                 
                 expression += ` ${input} `
                 
-                console.log(currentNumber)
+                // console.log(currentNumber)
                 expressionArray.push(input)
                 
 
@@ -144,14 +143,21 @@ function inputOperation(input) {
 
             break
 
-        case "square":
+        case "pow":
+
+            if (currentNumber == "") return
 
             expressionArray.push(input)
-            expression += "<sup>2</sup> "
+
+            sup.innerHTML = "y"
+            sup.classList.add("choose_exponent")
+
+            chooseExponent = true
             
             break
 
         case "sqrt":
+
 
             if (currentNumber != "") {
                 expressionArray.push("×")
@@ -179,40 +185,52 @@ function inputOperation(input) {
             break
 
         case "*":
+            values = ["×", "÷", "+", "−"]
+            if (values.includes(expressionArray[expressionArray.length - 1])) return 
+            
             input = "×"
 
             expressionArray.push(input)
-            // expression += ` &times; `
             expression += ` × `
     
-
             break
         
         case "/":
+            values = ["×", "÷", "+", "−"]
+            if (values.includes(expressionArray[expressionArray.length - 1])) return 
+
             input = "÷"
 
             expressionArray.push(input)
-            expression += ` &divide; `
+            expression += ` ÷ `
+    
+            break
+
+        case "+":
+            values = ["×", "÷", "+", "−"]
+            if (values.includes(expressionArray[expressionArray.length - 1])) return 
+
+            expressionArray.push(input)
+            expression += ` ${input} `
     
 
             break
 
         case "-":
-            const values = ["×", "÷", "+"]
+            values = ["×", "÷", "+", "−"]
             if (values.includes(expressionArray[expressionArray.length - 1]) || expressionArray.length == 0) {
-                console.log(expressionArray)
                 expressionArray.push("(")
-                console.log(expressionArray)
                 expressionArray.push(0)
-                console.log(expressionArray)
-                expressionArray.push(input)
+
+                // slightly different symbol
+                expressionArray.push("−")
                 console.log(expressionArray)
 
                 closeParenthesisAfterNextNumber = true
             } else {
-                expressionArray.push(input)
+                expressionArray.push("−")
             }
-            expression += ` &minus; `
+            expression += ` − `
     
 
             break
@@ -227,9 +245,13 @@ function inputOperation(input) {
 
     currentNumber = ""
     if (input != "Enter") {
-        expression = expression.replace("-", "&minus; ")
+        // expression = expression.replace("-", "&minus; ")
         
         expression ? screen.innerHTML = expression : "0"
+
+        if (chooseExponent) {
+            screen.appendChild(sup)
+        }
         
     }
 
@@ -242,8 +264,14 @@ function inputNumber(input) {
         expression += " × "
     }
 
-    currentNumber += input
-    expression == "0" ? expression = input : expression += input
+    if (chooseExponent) {
+        expression += `<sup>${input}</sup> `
+        expressionArray.push(input)
+        chooseExponent = false
+    } else {
+        currentNumber += input
+        expression == "0" ? expression = input : expression += input
+    }
     
     screen.innerHTML = expression
 }
@@ -271,44 +299,58 @@ function appendHistory(expression, answer) {
 
 
 function historyClick(event) {
-    console.log(event.type)
+
     const historyExp = event.target.querySelector("[data-expression]").innerText
     let answer = event.target.querySelector("[data-answer]").innerText
     answer = answer.substring(1, answer.length) // removes the "="-sign from the expression
 
     if(event.type == "click") { //handles left click
-        // TODO: better solutions to handle negative numbers when adding them to the expression?
+
         if(answer < 0) {
 
             expressionArray.push("(")
-            console.log(expressionArray)
             expressionArray.push(0)
-            console.log(expressionArray)
-            expressionArray.push("-")
-            expression += " &minus; "
+            // note: this is not regular minus symbol
+            expressionArray.push("−")
+            expression += " − "
             console.log(expressionArray)
 
             closeParenthesisAfterNextNumber = true
         }
-        // if (expressionArray.length > 0) {
-        //     inputOperation("+")
-        // }
+
         inputNumber(Math.abs(answer))
 
-    }else { //handles right click
+    } else { //handles right click
         event.preventDefault()
 
         currentNumber = ""
         expression += historyExp
-        expressionArray = expressionArray.concat(expression.split(" "))
-        console.log(expression.split(" "))
+        expressionArray = expression.split(" ")
+        
+        // for the evaluate() to work properly, we need to separate "!" from the numbers
+        for (let i = 0; i < expressionArray.length; i++) {
+
+            const element = expressionArray[i]
+
+            if (element.includes("!")) {
+
+                console.log("fixing ! in array")
+                // insert the number to the same index
+                expressionArray[i] = element.replace("!", "")
+                // and insert the "!" to the next index
+                expressionArray.splice(i + 1, 0, "!")
+                
+                // because we add the "!" to the array, the next index will contain "!", and the function will insert endless "!". To fix this we increment the counter twice
+                i++
+            } 
+            
+        }
+
         screen.innerHTML = expression
+
         console.log(expressionArray)
     }
     
-
-    console.log(historyExp, answer)
-
 }
 
 function clearHistory() {
@@ -316,26 +358,20 @@ function clearHistory() {
 }
 
 
-
-
-
 function evaluate() {
 
     console.log(expressionArray)
 
-    // for the history tab
-    // let historyExpression = expressionArray.join(" ")
     let historyExpression = expression
-
 
     lastExpressionScreen.innerHTML = expression
     lastExpressionScreen.style.visibility = 'visible'
 
-    let notSplitted = true
+    let notSolved = true
     let fixingParentheses = false
     let tempArray, indexOfStartParenthesis
 
-    while (notSplitted) {
+    while (notSolved) {
 
         // if the expression includes a value of "infinity", we won't be able to solve the equation. Therefore we set the expressionArray to a single value of "infinity", and the function will go to the else at the end of evaluate() and display the value, and add to history
         if (expressionArray.indexOf("infinity") != -1) {    
@@ -343,25 +379,30 @@ function evaluate() {
         }
 
         if (expressionArray.indexOf("(") != -1) {
+            console.log("parentheses")
+
             fixingParentheses = true
             indexOfStartParenthesis = expressionArray.indexOf("(")
             let indexOfEndParenthesis = expressionArray.indexOf(")") != -1 ? expressionArray.indexOf(")") : expressionArray.length - 1
             let numberOfItemsToRemove = indexOfEndParenthesis - indexOfStartParenthesis + 1
 
-            // let checkArray = expressionArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
-
+            
             tempArray = expressionArray
             expressionArray = []
-            // tempArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
             expressionArray = tempArray.splice(indexOfStartParenthesis, numberOfItemsToRemove)
+
+            // remove the start parenthesis
             expressionArray.shift()
 
+            // if a closing parenthesis is present, remove it
             if (expressionArray.indexOf(")") != -1) expressionArray.pop()
             
-            console.log(expressionArray)
-        }
+            // if the parenthesis were empty, assign 0
+            if (expressionArray.length == 0) expressionArray.push(0)
 
-        else if (expressionArray.indexOf("!") != -1) {
+            console.log(expressionArray)
+        } else if (expressionArray.indexOf("!") != -1) {
+
             console.log("factorial")
             let indexOfFactorial = expressionArray.indexOf("!")
 
@@ -370,24 +411,28 @@ function evaluate() {
 
             expressionArray.splice(indexOfFactorial - 1, 2, factorial(base))
             console.log(expressionArray)
-        } else if (expressionArray.indexOf("square") != -1) {
-            console.log("square")
-            let indexOfSquare = expressionArray.indexOf("square")
+        
+        } else if (expressionArray.indexOf("pow") != -1) {
+
+            console.log("pow")
+            let indexOfSquare = expressionArray.indexOf("pow")
 
             let base = expressionArray[indexOfSquare - 1]
+            let exponent = expressionArray[indexOfSquare + 1]
             base = parseFloat(base)
+            expressionArray.splice(indexOfSquare - 1, 3, pow(base, exponent))
             console.log(expressionArray)
-            expressionArray.splice(indexOfSquare - 1, 2, square(base))
-            console.log(expressionArray)
+
         } else if (expressionArray.indexOf("sqrt") != -1) {
+            
             console.log("squareRoot")
             let indexOfSquareRoot = expressionArray.indexOf("sqrt")
 
-            let base = expressionArray[indexOfSquareRoot + 1]
-            base = parseFloat(base)
+            let radicand = expressionArray[indexOfSquareRoot + 1]
+            radicand = parseFloat(radicand)
+            expressionArray.splice(indexOfSquareRoot, 2, squareRoot(radicand))
             console.log(expressionArray)
-            expressionArray.splice(indexOfSquareRoot, 2, squareRoot(base))
-            console.log(expressionArray)
+        
         }
 
         // check if the expression includes multiplication or division
@@ -404,23 +449,16 @@ function evaluate() {
             if (indexOfMultiplication < indexOfDivision) {
                 console.log("multiplication")
 
-                let number1 = expressionArray[indexOfMultiplication - 1]
-                number1 = parseFloat(number1)
+                let number1 = parseFloat(expressionArray[indexOfMultiplication - 1])
+                let number2 = parseFloat(expressionArray[indexOfMultiplication + 1])
 
-                let number2 = expressionArray[indexOfMultiplication + 1]
-                number2 = parseFloat(number2)
-
-                // expressionArray.splice(indexOfMultiplication - 1, 3)
-                // expressionArray.splice(indexOfMultiplication - 1, 0, multiply(number1, number2))
                 expressionArray.splice(indexOfMultiplication - 1, 3, multiply(number1, number2))
         
                 console.log(expressionArray)
             } else {
                 console.log("division")
-                let number1 = expressionArray[indexOfDivision - 1]
-                number1 = parseFloat(number1)
-                let number2 = expressionArray[indexOfDivision + 1]
-                number2 = parseFloat(number2)
+                let number1 = parseFloat(expressionArray[indexOfDivision - 1])
+                let number2 = parseFloat(expressionArray[indexOfDivision + 1])
 
                 expressionArray.splice(indexOfDivision - 1, 3, divide(number1, number2))
         
@@ -428,12 +466,13 @@ function evaluate() {
             }
             
     
-        } else if (expressionArray.indexOf("+") != -1 || expressionArray.indexOf("-") != -1) {
+        } else if (expressionArray.indexOf("+") != -1 || expressionArray.indexOf("−") != -1) {
             
             let indexOfAddition = expressionArray.indexOf("+") != -1 ? expressionArray.indexOf("+") : 1000
-            let indexOfSubtraction = expressionArray.indexOf("-") != -1 ? expressionArray.indexOf("-") : 1000
+            let indexOfSubtraction = expressionArray.indexOf("−") != -1 ? expressionArray.indexOf("−") : 1000
 
             if (indexOfAddition < indexOfSubtraction) {
+            
                 console.log("addition")
 
                 let number1 = expressionArray[indexOfAddition - 1]
@@ -444,29 +483,32 @@ function evaluate() {
                 expressionArray.splice(indexOfAddition - 1, 3, number1 + number2)
         
                 console.log(expressionArray)
+            
             } else {
+
                 console.log("subtraction")
                 
                 if (expressionArray[indexOfSubtraction - 1] == undefined) {
                     expressionArray.unshift(0)
+                    indexOfSubtraction = expressionArray.indexOf("−")
                 } 
 
-                // setTimeout(() => {
                     
-                    let number1 = expressionArray[indexOfSubtraction - 1]
-                    number1 = parseFloat(number1)
-                    
-                    let number2 = expressionArray[indexOfSubtraction + 1]
-                    number2 = parseFloat(number2)
+                let number1 = expressionArray[indexOfSubtraction - 1]
+                number1 = parseFloat(number1)
+                
+                let number2 = expressionArray[indexOfSubtraction + 1]
+                number2 = parseFloat(number2)
 
-                    expressionArray.splice(indexOfSubtraction - 1, 3, number1 - number2)
-                // }, 5)
+                expressionArray.splice(indexOfSubtraction - 1, 3, number1 - number2)
 
         
                 console.log(expressionArray)
             }
             
         } else if (fixingParentheses) {
+            console.log("insert answer of parentheses back into array")
+
             fixingParentheses = false
 
             let answerOfParentheses = expressionArray[0]
@@ -504,7 +546,7 @@ function evaluate() {
             } 
 
             // stops the while-loop
-            notSplitted = false
+            notSolved = false
         }
 
     } // end of while-loop
@@ -512,8 +554,6 @@ function evaluate() {
     displayError()
     
 }
-
-
 
 
 function multiply(number1, number2) {
@@ -559,6 +599,7 @@ function multiply(number1, number2) {
 
     // if one the numbers passed in was negative, make the product negative
     if (!(number1IsNegative && number2IsNegative) && (number1IsNegative || number2IsNegative)) {
+        // this is 1/2 regular minus symbols
         product = "-" + product
         product = parseFloat(product)
     }
@@ -628,6 +669,7 @@ function divide(dividend, divisor) {
 
     // if one the numbers passed in was negative, make the quotient negative
     if (!(dividendIsNegative && divisorIsNegative) && (dividendIsNegative || divisorIsNegative)) {
+        // this is 1/2 regular minus symbols
         quotient = "-" + quotient
         quotient = parseFloat(quotient)
     }
@@ -637,8 +679,12 @@ function divide(dividend, divisor) {
 
 function pow(base, exponent) {
 
+    // if the exponent is 0, the for-loop won't run, and we return the correct answer of 1. Else, it provides a good starting point for calculating the power of the base
     answer = 1
 
+    // to calculate the power of a number, we multiply the number by itself x times
+    // example: 5^3 = 5 * 5 * 5
+    // using a loop to multiply the number by itself, as many times as the exponent implies
     for (let i = 0; i < exponent; i++) {
 
         answer = multiply(answer, base)
@@ -648,70 +694,75 @@ function pow(base, exponent) {
     return answer
 }
 
-function square(base) {
-    
-    return multiply(base, base)
+function squareRoot(radicand) {
 
-}
-
-function squareRoot(base) {
-
-    if (base < 0) return "error"
+    if (radicand < 0) return "error"
 
     let square = 1
     let i=0
 
-    while(i < 19) {
-        i++
-        console.log(i)
+    // using newton's method repeatedly to get a very accurate square root of the radicand
+    // newton's method: (radicand / square + square) / 2
+    for (let i = 0; i < 20; i++) {
 
-        // newton's method: (base / square + square) / 2
-        square = divide((divide(base, square) + square), 2)
-        console.log(square + "    " + i)
+        square = divide((divide(radicand, square) + square), 2)
+        
     }
 
     return square;
 }
 
-function nthRoot(radicand, root) {
-    //https://www.geeksforgeeks.org/calculating-n-th-real-root-using-binary-search/?ref=lbp 
 
-    let low, high; //lower and upper limit of the nth-root of the radicand
-    /*if the radicand is in the range [0, 1), the nth-root of the radicand won't be lower than the radicand or higher than 1.
-     Example: square root of 0,54 is 0,73 */
-    if(0 <= radicand && radicand < 1) {
-        low = radicand;
-        high = 1;
-    }else {
-        low = 1;
-        high = radicand;
-    }
 
-    const accuracy = 0.0001; //The accuracy of the nth root. Example: 0.001 will have an accuracy up to three decimals
+// not completed
 
-    let guess = divide(low + high, 2);
+// function nthRoot(radicand, root) {
+//     //https://www.geeksforgeeks.org/calculating-n-th-real-root-using-binary-search/?ref=lbp 
 
-    while (true) {
-        let abs_error = Math.abs(pow(guess, root) - radicand);
-        if(abs_error > accuracy) {
-            if(pow(guess, root) > radicand) {
+//     let low, high; //lower and upper limit of the nth-root of the radicand
+//     /*if the radicand is in the range [0, 1), the nth-root of the radicand won't be lower than the radicand or higher than 1.
+//      Example: square root of 0,54 is 0,73 */
+//     if(0 <= radicand && radicand < 1) {
+//         low = radicand;
+//         high = 1;
+//     }else {
+//         low = 1;
+//         high = radicand;
+//     }
+
+//     const accuracy = 0.0001; //The accuracy of the nth root. Example: 0.001 will have an accuracy up to three decimals
+
+//     let guess = divide(low + high, 2);
+
+//     while (true) {
+//         let abs_error = Math.abs(pow(guess, root) - radicand);
+//         if(abs_error > accuracy) {
+//             if(pow(guess, root) > radicand) {
                 
-            }
-        } else {
-            break;
-        }
+//             }
+//         } else {
+//             break;
+//         }
         
-    }
-}
+//     }
+// }
 
-/**
- * @param {Number} n hola dora
- * @return {String} something special
- * 
- */
+
 
 function factorial(n) {
-// we get the correct starting number for every other n, example: 6! => 1*6 as the first operation, then 6*5 and so on
+
+    // if (base < 0 || !Number.isInteger(base)) return
+
+    // 170 is the largest integer for which its factorial can be stored in IEEE 754 double-precision floating-point format (wikipedia: https://en.wikipedia.org/wiki/170_(number)). Therefore we can save some time by just returning "infinity" if the number is larger than 170
+    if (n > 170) {
+        error = "Kan ikke regne ut fakultet av tall høyere enn 170, på grunn av minne"
+        return "infinity"
+    }
+
+    // it's convenient the set the initial answer as 1, for two reasons: 
+    // 0! = 1 
+    // and 
+    // we get the correct starting number for every other n, example: 6! => 1*6 as the first operation, then 6*5 and so on
     let answer = 1
 
     for (let i = n; i > 0; i--) {

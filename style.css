@@ -75,12 +75,12 @@ body {
     grid-column: span 2;
 }
 
-h3 {
-    margin-left: 3rem;
+h2, p, ul {
+    margin: 1em 3rem;
 }
 
-ul {
-    margin: 1rem 3rem;
+li {
+    margin: .5em 2rem;
 }
 
 .history_header {
@@ -166,4 +166,8 @@ ul {
 
 sup {
     font-size: .75em;
+}
+
+.choose_exponent {
+    background: rgb(60, 86, 158);
 }

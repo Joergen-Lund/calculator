@@ -22,7 +22,7 @@
 
 </head>
 <body>
-    <div class="error-container">Something went wrong</div>
+    <div class="error-container"></div>
 
     <div class="container">
         <div class="calc">
@@ -33,23 +33,21 @@
 
             <button tabindex="-1" data-all-clear>AC</button>
             
-            <button tabindex="-1" data-operation value="square">x<sup>y</sup></button>
+            <button tabindex="-1" data-operation value="(">(</button>
+            <button tabindex="-1" data-operation value=")">)</button>
+            <button tabindex="-1" data-operation value="Backspace">DEL</button>
+
+            <button tabindex="-1" data-operation value="pow">x<sup>y</sup></button>
             <button tabindex="-1" data-operation value="sqrt">
                 <span class="sqrt">&radic;<span class="sqrt_num">(x)</span></span>
-                <!-- <span class="sqrt">
-                    &radic;<span class="sqrt-num">&nbsp;x&nbsp;</span>
-                </span> -->
             </button>
             
             <button tabindex="-1" data-operation value="!">n!</button>
-            <button tabindex="-1" data-operation value="">&plusmn;</button>
-            <button tabindex="-1" data-operation value="(">(</button>
-            <button tabindex="-1" data-operation value=")">)</button>
-            <button tabindex="-1" data-operation value="×">&times;</button>
+            <button tabindex="-1" data-operation value="*">&times;</button>
             <button tabindex="-1" data-number>7</button>
             <button tabindex="-1" data-number>8</button>
             <button tabindex="-1" data-number>9</button>
-            <button tabindex="-1" data-operation value="÷">&divide;</button>  
+            <button tabindex="-1" data-operation value="/">&divide;</button>  
             <button tabindex="-1" data-number>4</button>
             <button tabindex="-1" data-number>5</button>
             <button tabindex="-1" data-number>6</button>
@@ -76,14 +74,18 @@
 
     </div> <!-- /.conatiner -->
 
-    <h3>Huskeliste</h3>
-    <ul>
-        <li>fiks "22 * ÷ + -"</li>
-        <li>endre "-" til "&minus;" globalt</li>
-        <li>fiks negative nummer</li>
-        <li>parenteser</li>
-        <li>+/-</li>
-        <li>implementere <span style="white-space: nowrap;">&radic;<span style="text-decoration:overline;">&nbsp;X&nbsp;</span></span> i UI</li>
-    </ul>
+    <div class="info">
+        <h2>Info</h2>
+        <p>For visuell representasjon av hvordan kalkulatoren regner, åpne konsollen før du regner ut.</p>
+        <br>
+        <p>Kjente feil som vi hadde fikset hvis oppgaven hadde blitt mer vektlagt:</p>
+        <ul>
+            <li>Kan ikke hente tall med eksponent eller kvadratrot fra historikk</li>
+            <li>Visuelle problemer med mellomrom etter å ha slettet deler av uttrykket</li>
+        </ul>
+        <p>Vi hadde også ryddet opp mer i koden, og testet grundigere for bugs.</p>
+        <br>
+    </div>
+
 </body>
 </html>
